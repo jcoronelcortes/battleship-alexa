@@ -1,0 +1,1112 @@
+{
+  "barcos": [
+    {
+      "identificador": 0,
+      "fila": 7,
+      "columna": 3,
+      "largo": 1,
+      "direccion": 0,
+      "tipoDeBarco": "Submarine",
+      "puntosDeVida": 1
+    },
+    {
+      "identificador": 1,
+      "fila": 3,
+      "columna": 4,
+      "largo": 1,
+      "direccion": 0,
+      "tipoDeBarco": "Submarine",
+      "puntosDeVida": 1
+    },
+    {
+      "identificador": 2,
+      "fila": 5,
+      "columna": 0,
+      "largo": 1,
+      "direccion": 0,
+      "tipoDeBarco": "Submarine",
+      "puntosDeVida": 1
+    },
+    {
+      "identificador": 3,
+      "fila": 2,
+      "columna": 0,
+      "largo": 1,
+      "direccion": 0,
+      "tipoDeBarco": "Submarine",
+      "puntosDeVida": 1
+    },
+    {
+      "identificador": 4,
+      "fila": 1,
+      "columna": 0,
+      "largo": 2,
+      "direccion": 0,
+      "tipoDeBarco": "Destroyer",
+      "puntosDeVida": 2
+    },
+    {
+      "identificador": 5,
+      "fila": 0,
+      "columna": 7,
+      "largo": 2,
+      "direccion": 0,
+      "tipoDeBarco": "Destroyer",
+      "puntosDeVida": 2
+    },
+    {
+      "identificador": 6,
+      "fila": 1,
+      "columna": 4,
+      "largo": 2,
+      "direccion": 0,
+      "tipoDeBarco": "Destroyer",
+      "puntosDeVida": 2
+    },
+    {
+      "identificador": 7,
+      "fila": 7,
+      "columna": 5,
+      "largo": 3,
+      "direccion": 0,
+      "tipoDeBarco": "Cruise",
+      "puntosDeVida": 3
+    },
+    {
+      "identificador": 8,
+      "fila": 4,
+      "columna": 6,
+      "largo": 3,
+      "direccion": 0,
+      "tipoDeBarco": "Cruise",
+      "puntosDeVida": 3
+    },
+    {
+      "identificador": 9,
+      "fila": 2,
+      "columna": 5,
+      "largo": 4,
+      "direccion": 0,
+      "tipoDeBarco": "Battleship",
+      "puntosDeVida": 4
+    }
+  ],
+  "tableroAlexa": {
+    "tablero": [
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 5,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 2
+        },
+        {
+          "identificadorBarco": 5,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 2
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 4,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 2
+        },
+        {
+          "identificadorBarco": 4,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 2
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 6,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 2
+        },
+        {
+          "identificadorBarco": 6,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 2
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 3,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 9,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 4
+        },
+        {
+          "identificadorBarco": 9,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 4
+        },
+        {
+          "identificadorBarco": 9,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 4
+        },
+        {
+          "identificadorBarco": 9,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 4
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 1,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 8,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 3
+        },
+        {
+          "identificadorBarco": 8,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 3
+        },
+        {
+          "identificadorBarco": 8,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 3
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 2,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 7,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 3
+        },
+        {
+          "identificadorBarco": 7,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 3
+        },
+        {
+          "identificadorBarco": 7,
+          "tieneBarco": true,
+          "estado": 0,
+          "largoDelBarco": 3
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ]
+    ],
+    "puntos": 0
+  },
+  "tableroJugador": {
+    "tablero": [
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ],
+      [
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        },
+        {
+          "identificadorBarco": 0,
+          "tieneBarco": false,
+          "estado": 0,
+          "largoDelBarco": -1
+        }
+      ]
+    ],
+    "puntos": 0
+  }
+}
