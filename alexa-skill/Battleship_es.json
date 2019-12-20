@@ -1,0 +1,229 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "batalla naval",
+      "intents": [
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": [
+            "cancelar"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "ComenzarJuegoIntent",
+          "slots": [],
+          "samples": [
+            "Comenzar juego"
+          ]
+        },
+        {
+          "name": "AtaqueJugadorIntent",
+          "slots": [
+            {
+              "name": "Columna",
+              "type": "TipoColumna"
+            },
+            {
+              "name": "Fila",
+              "type": "TipoFila"
+            }
+          ],
+          "samples": [
+            "{Fila} {Columna}"
+          ]
+        },
+        {
+          "name": "AtaqueAlexaIntent",
+          "slots": [],
+          "samples": [
+            "tu turno",
+            "tu juegas ahora",
+            "tu atacas",
+            "es tu turno de atacar"
+          ]
+        },
+        {
+          "name": "AlAguaAlexaIntent",
+          "slots": [],
+          "samples": [
+            "fallaste",
+            "al agua"
+          ]
+        },
+        {
+          "name": "ImpactoAlexaIntent",
+          "slots": [],
+          "samples": [
+            "impacto"
+          ]
+        },
+        {
+          "name": "AlexaGanaEljuegoIntent",
+          "slots": [],
+          "samples": [
+            "Tu ganas",
+            "Tu ganas el juego",
+            "Has destrudio el ultimo barco. Tu ganas el juego."
+          ]
+        },
+        {
+          "name": "ModoTestIntent",
+          "slots": [],
+          "samples": [
+            "activar modo prueba"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "TipoColumna",
+          "values": [
+            {
+              "name": {
+                "value": "nueve",
+                "synonyms": [
+                  "9"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "ocho",
+                "synonyms": [
+                  "8"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "siete",
+                "synonyms": [
+                  "7"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "seis",
+                "synonyms": [
+                  "6"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "cinco",
+                "synonyms": [
+                  "5"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "cuatro",
+                "synonyms": [
+                  "4"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "tres",
+                "synonyms": [
+                  "3"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "dos",
+                "synonyms": [
+                  "2"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "uno",
+                "synonyms": [
+                  "1"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TipoFila",
+          "values": [
+            {
+              "name": {
+                "value": "Y"
+              }
+            },
+            {
+              "name": {
+                "value": "I"
+              }
+            },
+            {
+              "name": {
+                "value": "H"
+              }
+            },
+            {
+              "name": {
+                "value": "G"
+              }
+            },
+            {
+              "name": {
+                "value": "F"
+              }
+            },
+            {
+              "name": {
+                "value": "E"
+              }
+            },
+            {
+              "name": {
+                "value": "D"
+              }
+            },
+            {
+              "name": {
+                "value": "C"
+              }
+            },
+            {
+              "name": {
+                "value": "B"
+              }
+            },
+            {
+              "name": {
+                "value": "A"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "battleship game",
+      "intents": [
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": [
+            "cancel"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "StartGameIntent",
+          "slots": [],
+          "samples": [
+            "start game"
+          ]
+        },
+        {
+          "name": "PlayerAttackIntent",
+          "slots": [
+            {
+              "name": "Column",
+              "type": "ColumnType"
+            },
+            {
+              "name": "Row",
+              "type": "RowType"
+            }
+          ],
+          "samples": [
+            "{Row} {Column}"
+          ]
+        },
+        {
+          "name": "AlexaAttackIntent",
+          "slots": [],
+          "samples": [
+            "it is your turn to attack",
+            "you attack",
+            "you play now",
+            "your turn"
+          ]
+        },
+        {
+          "name": "YouFailAlexaIntent",
+          "slots": [],
+          "samples": [
+            "you fail"
+          ]
+        },
+        {
+          "name": "ImpactAlexaIntent",
+          "slots": [],
+          "samples": [
+            "impact"
+          ]
+        },
+        {
+          "name": "AlexaWinsTheGameIntent",
+          "slots": [],
+          "samples": [
+            "You win",
+            "You win the game",
+            "You messed up the last ship. You win the game."
+          ]
+        },
+        {
+          "name": "TestModeIntent",
+          "slots": [],
+          "samples": [
+            "enable test mode"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "ColumnType",
+          "values": [
+            {
+              "name": {
+                "value": "nine"
+              }
+            },
+            {
+              "name": {
+                "value": "eight"
+              }
+            },
+            {
+              "name": {
+                "value": "seven"
+              }
+            },
+            {
+              "name": {
+                "value": "six"
+              }
+            },
+            {
+              "name": {
+                "value": "five"
+              }
+            },
+            {
+              "name": {
+                "value": "four"
+              }
+            },
+            {
+              "name": {
+                "value": "three"
+              }
+            },
+            {
+              "name": {
+                "value": "two"
+              }
+            },
+            {
+              "name": {
+                "value": "one"
+              }
+            }
+          ]
+        },
+        {
+          "name": "RowType",
+          "values": [
+            {
+              "name": {
+                "value": "Y"
+              }
+            },
+            {
+              "name": {
+                "value": "I"
+              }
+            },
+            {
+              "name": {
+                "value": "H"
+              }
+            },
+            {
+              "name": {
+                "value": "G"
+              }
+            },
+            {
+              "name": {
+                "value": "F"
+              }
+            },
+            {
+              "name": {
+                "value": "E"
+              }
+            },
+            {
+              "name": {
+                "value": "D"
+              }
+            },
+            {
+              "name": {
+                "value": "C"
+              }
+            },
+            {
+              "name": {
+                "value": "B"
+              }
+            },
+            {
+              "name": {
+                "value": "A"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
