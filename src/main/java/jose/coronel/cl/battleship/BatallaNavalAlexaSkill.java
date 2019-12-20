@@ -13,7 +13,7 @@ public class BatallaNavalAlexaSkill extends SkillStreamHandler {
         return Skills.standard()
                 .addRequestHandlers(
                         new LaunchRequestHandler(),
-                        new PausaHandler(),
+                        new TestModeHandler(),
                         new StartGameHandler(),
                         new PlayerAttackHandler(),
                         new AlexaAttackHandler(),

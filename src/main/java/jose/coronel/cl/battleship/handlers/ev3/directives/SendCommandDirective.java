@@ -14,6 +14,7 @@ public class SendCommandDirective {
     private String shipDestroyed = "NO";
     private String row;
     private String column;
+    private String logZones;
 
 
     public SendCommandDirective() {
@@ -22,6 +23,12 @@ public class SendCommandDirective {
     public SendCommandDirective(String tipo, String command) {
         this.type = tipo;
         this.command = command;
+    }
+
+    public SendCommandDirective(String tipo, String command, String logZones) {
+        this.type = tipo;
+        this.command = command;
+        this.logZones = logZones;
     }
 
     public SendCommandDirective(String type, String command, String row, String column) {
@@ -78,5 +85,13 @@ public class SendCommandDirective {
 
     public void setColumn(String column) {
         this.column = column;
+    }
+
+    public String getLogZones() {
+        return logZones;
+    }
+
+    public void setLogZones(String logZones) {
+        this.logZones = logZones;
     }
 }

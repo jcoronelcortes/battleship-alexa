@@ -49,7 +49,7 @@ public class AttackBoardTime {
             totalPause = totalPause - SHOOT_SOUND_TIME;
         }
         if(totalPause < 0) {
-            return "";
+            return "<break time=\"0s\"/>";
         }
         else{
             StringBuilder breaks = new StringBuilder();
