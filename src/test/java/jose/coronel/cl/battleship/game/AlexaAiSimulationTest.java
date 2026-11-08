@@ -1,7 +1,9 @@
 package jose.coronel.cl.battleship.game;
 
 import jose.coronel.cl.battleship.game.board.Game;
-import jose.coronel.cl.battleship.util.MindstormAlexaUtil;
+import jose.coronel.cl.battleship.game.board.Attack;
+import jose.coronel.cl.battleship.game.board.ShipType;
+import jose.coronel.cl.battleship.session.GameSession;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -19,7 +21,6 @@ class AlexaAiSimulationTest {
     private static final int SIZE = 9;
     private static final int GAMES = 300;
     private static final int[] LENGTHS = {2, 3, 3, 4, 5};
-    private static final String[] TYPES = {"DESTROYER", "SUBMARINE", "CRUISER", "BATTLESHIP", "AIRCRAFT CARRIER"};
     private static final int TOTAL_SHIP_CELLS = 17;
 
     private final Random random = new Random(2026);
@@ -72,9 +73,9 @@ class AlexaAiSimulationTest {
 
         for (int shot = 1; shot <= SIZE * SIZE; shot++) {
             game = roundTrip(game);
-            int[] attack = engine.generateAlexaAttack(game);
-            int row = attack[0];
-            int column = attack[1];
+            Attack attack = engine.generateAlexaAttack(game);
+            int row = attack.getRow();
+            int column = attack.getColumn();
             assertFalse(attacked[row][column],
                     "mode " + mode + " repeated shot [" + row + "," + column + "] on shot " + shot);
             attacked[row][column] = true;
@@ -83,16 +84,16 @@ class AlexaAiSimulationTest {
             int ship = ships[row][column];
             if (ship < 0) {
                 // Player says "you fail"
-                engine.saveFailImpactOnPlayerBoard(game.getBoardGamePlayer(), String.valueOf(row), String.valueOf(column));
+                engine.recordAlexaMiss(game, row, column);
             } else {
                 hits++;
                 cellsLeft[ship]--;
                 if (cellsLeft[ship] == 0) {
                     // Player says "destroyed <ship>"
-                    game.getBoardGamePlayer().updateZonesToDestroyedAndCleanImpacts(game, row, column, TYPES[ship]);
+                    engine.recordAlexaSunk(game, ShipType.values()[ship], row, column);
                 } else {
                     // Player says "impact"
-                    engine.saveImpactOnPlayerBoard(game, row, column);
+                    engine.recordAlexaHit(game, row, column);
                 }
                 if (hits == TOTAL_SHIP_CELLS) {
                     return shot;
@@ -103,7 +104,7 @@ class AlexaAiSimulationTest {
     }
 
     private Game roundTrip(Game game) {
-        return MindstormAlexaUtil.jsonToGame(MindstormAlexaUtil.gameToJson(game));
+        return GameSession.fromJson(GameSession.toJson(game));
     }
 
     /** Random non-overlapping placement. Cell value is the ship index, or -1 for water. */

@@ -1,50 +1,43 @@
 package jose.coronel.cl.battleship.game.board;
 
+/** One cell of a board. Getters and setters are used to keep the game in the Alexa session (JSON). */
 public class Zone {
 
     public static final int PENDING_ATTACK = 0;
     public static final int IMPACT = 1;
     public static final int FAIL = 2;
 
-
     private int identifyShip;
     private boolean hasShip;
-    private int status;
-    private int shipLength;
-    
-
-    public Zone() {}
-
-    public void createNewZone() {
-        identifyShip = 0;
-        status = 0;
-        hasShip = false;
-        shipLength = -1;
-    }
-
+    private int status = PENDING_ATTACK;
+    private int shipLength = -1;
 
     public boolean pendingToAttack() {
-        return (status == PENDING_ATTACK) ? true : false;
+        return status == PENDING_ATTACK;
     }
 
-    public boolean validateProbabilityDensityFunctionStatus(){
-        return (status == PENDING_ATTACK || status == IMPACT) ? true : false;
+    /** A ship could still be here: not attacked yet, or already hit. */
+    public boolean canHoldShip() {
+        return status == PENDING_ATTACK || status == IMPACT;
     }
 
-    public boolean validateImpactStatus(){
-        return (status == IMPACT) ? true : false;
+    public boolean impacted() {
+        return status == IMPACT;
     }
-
 
     public void recordImpact() {
-        this.status = IMPACT;
+        status = IMPACT;
     }
-
 
     public void recordFailedImpact() {
-        this.status = FAIL;
+        status = FAIL;
     }
 
+    public void placeShip(int identifier, int length) {
+        hasShip = true;
+        identifyShip = identifier;
+        shipLength = length;
+    }
 
     public int getIdentifyShip() {
         return identifyShip;
@@ -78,15 +71,4 @@ public class Zone {
         this.shipLength = shipLength;
     }
 
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Zone{");
-        sb.append("identifyShip=").append(identifyShip);
-        sb.append(", hasShip=").append(hasShip);
-        sb.append(", status=").append(status);
-        sb.append(", shipLength=").append(shipLength);
-        sb.append('}');
-        return sb.toString();
-    }
 }

@@ -13,7 +13,7 @@ public class I18NUtil {
     public static final Logger log = LoggerFactory.getLogger(I18NUtil.class);
 
     public static final String BUNDLENAME = "translations";
-    public static final Locale DEFAULT_LOCALE = new Locale("en", "US");
+    public static final Locale DEFAULT_LOCALE = Locale.US;
 
 
     public static Locale getLocale(HandlerInput input) {

@@ -1,7 +1,7 @@
 package jose.coronel.cl.battleship.robot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jose.coronel.cl.battleship.handlers.ev3.directives.SendCommandDirective;
+
 import org.slf4j.Logger;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
@@ -37,7 +37,7 @@ public class MqttRobotChannel implements RobotChannel {
     }
 
     @Override
-    public void send(SendCommandDirective command) {
+    public void send(RobotCommand command) {
         try {
             String json = MAPPER.writeValueAsString(command);
             client.publish(PublishRequest.builder()

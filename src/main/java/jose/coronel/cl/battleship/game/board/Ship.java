@@ -1,60 +1,37 @@
 package jose.coronel.cl.battleship.game.board;
 
-import org.slf4j.Logger;
-
-import static org.slf4j.LoggerFactory.getLogger;
-
+/** One of Alexa's ships. Getters and setters are used to keep the game in the Alexa session (JSON). */
 public class Ship {
 
-    private static Logger log = getLogger(Ship.class);
+    public static final int HORIZONTAL = 0;
+    public static final int VERTICAL = 1;
 
     private int identifier;
-    private int row;
-    private int column;
+    private int row = -1;
+    private int column = -1;
     private int length;
-    private int direction;
+    private int direction = HORIZONTAL;
     private String typeOfShip;
     private int lifePoints;
 
-    public static final int UNASSIGNED_DIRECTION = -1;
-
-    public Ship(){}
-
-    public Ship(int identifier, int length, String typeOfShip) {
-        this.identifier = identifier;
-        this.length = length;
-        this.lifePoints = length;
-        this.typeOfShip = typeOfShip;
-        this.row = -1;
-        this.column = -1;
-        this.direction = UNASSIGNED_DIRECTION;
-        log.info("Creating ship with length : {} - type : {} - identifier : {} ", length, typeOfShip, identifier);
+    public Ship() {
     }
 
-
-    public void reduceOneLifePoint(){
-        this.lifePoints = lifePoints -1;
-    }
-
-    public boolean statusDestroyed(){
-        return (lifePoints <= 0) ? true : false;
-    }
-
-    public boolean hasAnAssignedZone() {
-        return (row == -1 || column == -1) ? false : true;
-    }
-
-
-    public boolean hasAnAssignedDirection() {
-        return (direction == UNASSIGNED_DIRECTION) ? false : true;
-    }
-
-
-    public void defineZone(int row, int column) {
+    public Ship(ShipType type, int row, int column, int direction) {
+        this.identifier = type.ordinal();
+        this.length = type.length();
+        this.lifePoints = type.length();
+        this.typeOfShip = type.label();
         this.row = row;
         this.column = column;
+        this.direction = direction;
     }
 
+    /** Records a hit. @return true when this hit sank the ship */
+    public boolean hit() {
+        lifePoints--;
+        return lifePoints <= 0;
+    }
 
     public int getIdentifier() {
         return identifier;
@@ -112,18 +89,4 @@ public class Ship {
         this.lifePoints = lifePoints;
     }
 
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Ship{");
-        sb.append("identifier=").append(identifier);
-        sb.append(", row=").append(row);
-        sb.append(", column=").append(column);
-        sb.append(", length=").append(length);
-        sb.append(", direction=").append(direction);
-        sb.append(", typeOfShip='").append(typeOfShip).append('\'');
-        sb.append(", lifePoints=").append(lifePoints);
-        sb.append('}');
-        return sb.toString();
-    }
 }

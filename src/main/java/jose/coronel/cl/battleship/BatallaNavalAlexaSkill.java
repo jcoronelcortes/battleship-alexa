@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jose.coronel.cl.battleship.handlers.common.*;
-import jose.coronel.cl.battleship.handlers.ev3.*;
+import jose.coronel.cl.battleship.handlers.game.*;
 import jose.coronel.cl.battleship.handlers.exception.GenericExceptionHandler;
 import jose.coronel.cl.battleship.robot.LoggingRobotChannel;
 import jose.coronel.cl.battleship.robot.RobotChannels;

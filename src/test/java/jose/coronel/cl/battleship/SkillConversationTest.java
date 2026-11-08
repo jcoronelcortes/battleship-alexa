@@ -19,8 +19,8 @@ import com.amazon.ask.model.slu.entityresolution.ValueWrapper;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;
 import jose.coronel.cl.battleship.game.board.Game;
 import jose.coronel.cl.battleship.game.board.Zone;
-import jose.coronel.cl.battleship.util.MindstormAlexaUtil;
-import jose.coronel.cl.battleship.handlers.ev3.directives.SendCommandDirective;
+import jose.coronel.cl.battleship.session.GameSession;
+import jose.coronel.cl.battleship.robot.RobotCommand;
 import jose.coronel.cl.battleship.robot.LoggingRobotChannel;
 import jose.coronel.cl.battleship.robot.RobotChannels;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,10 +73,10 @@ class SkillConversationTest {
         String fail = say("es-ES", intent("AlAguaAlexaIntent", Map.of()));
         assertTrue(fail.contains("Es tu turno de atacar"), fail);
 
-        List<String> commands = robot.getSent().stream().map(SendCommandDirective::getCommand).toList();
+        List<String> commands = robot.getSent().stream().map(RobotCommand::getCommand).toList();
         assertEquals(List.of("start_game", "game_mode_configured", "player_attack", "fail_attack"), commands);
 
-        SendCommandDirective playerAttack = robot.getSent().get(2);
+        RobotCommand playerAttack = robot.getSent().get(2);
         assertEquals("2", playerAttack.getRow());     // C → row index 2
         assertEquals("4", playerAttack.getColumn());  // 5 → column index 4
     }
@@ -90,12 +90,73 @@ class SkillConversationTest {
         assertEquals("start_game", robot.getSent().get(0).getCommand());
     }
 
+    // ---------- game flow guards (before the refactor these crashed or counted twice) ----------
+
+    @Test
+    void attackBeforeStartingAsksToStart() {
+        String attack = say("es-ES", intent("AtaqueJugadorIntent", Map.of("Fila", "C", "Columna", "cinco")));
+        assertTrue(attack.contains("Todavía no hemos comenzado una partida"), attack);
+        assertTrue(robot.getSent().isEmpty());
+    }
+
+    @Test
+    void answerBeforeAlexaShootsIsRejected() {
+        say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        String hit = say("es-ES", intent("ImpactoAlexaIntent", Map.of()));
+        assertTrue(hit.contains("No tengo ningún disparo esperando tu respuesta"), hit);
+    }
+
+    @Test
+    void repeatedImpactCountsOnlyOnce() {
+        say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        say("es-ES", intent("AtaqueJugadorIntent", Map.of("Fila", "A", "Columna", "uno")));
+        say("es-ES", intent("ImpactoAlexaIntent", Map.of()));
+        String again = say("es-ES", intent("ImpactoAlexaIntent", Map.of()));
+        assertTrue(again.contains("No tengo ningún disparo esperando tu respuesta"), again);
+        Game game = GameSession.fromJson((String) session.get("jsonGame"));
+        assertEquals(1, game.getBoardGamePlayer().getPoints());
+    }
+
+    @Test
+    void attackingBeforeAnsweringAlexaAsksForTheAnswer() {
+        say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        say("es-ES", intent("AtaqueJugadorIntent", Map.of("Fila", "A", "Columna", "uno")));
+        String row = (String) session.get("alexaAttackRow");
+        String second = say("es-ES", intent("AtaqueJugadorIntent", Map.of("Fila", "B", "Columna", "dos")));
+        assertTrue(second.contains("Primero dime cómo fue mi disparo en " + (char) ('A' + Integer.parseInt(row))), second);
+        assertEquals(1, robot.getSent().stream().filter(c -> c.getCommand().equals("player_attack")).count());
+    }
+
+    @Test
+    void unknownCellIsExplained() {
+        say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        String attack = say("es-ES", intent("AtaqueJugadorIntent", Map.of("Fila", "C", "Columna", "diez")));
+        assertTrue(attack.contains("No entendí la casilla"), attack);
+    }
+
+    @Test
+    void corruptedGameInSessionIsTreatedAsNoGame() {
+        session.put("jsonGame", "{not json");
+        String attack = say("es-ES", intent("AtaqueJugadorIntent", Map.of("Fila", "C", "Columna", "cinco")));
+        assertTrue(attack.contains("Todavía no hemos comenzado una partida"), attack);
+    }
+
+    @Test
+    void unexpectedErrorIsAnsweredInThePlayersLanguage() {
+        // Before the refactor this answer was always in English
+        RobotChannels.set(command -> {
+            throw new IllegalStateException("simulated failure");
+        });
+        String start = say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        assertTrue(start.contains("Lo siento, tuve un problema"), start);
+    }
+
     @Test
     void spanishLevelSynonymUsesCanonicalValue() {
         say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
         String mode = say("es-ES", resolvedIntent("ModoDeJuegoIntent", "nivel", "fácil", "básico"));
         assertTrue(mode.contains("Modo de juego básico configurado"), mode);
-        Game game = MindstormAlexaUtil.jsonToGame((String) session.get("jsonGame"));
+        Game game = GameSession.fromJson((String) session.get("jsonGame"));
         assertEquals(Game.BASIC_MODE, game.getGameMode());
     }
 
@@ -114,7 +175,7 @@ class SkillConversationTest {
         say("es-ES", intent("ModoDeJuegoIntent", Map.of("nivel", "básico")));
 
         // Find Alexa's destroyer (length 2) and shoot both cells
-        Game game = MindstormAlexaUtil.jsonToGame((String) session.get("jsonGame"));
+        Game game = GameSession.fromJson((String) session.get("jsonGame"));
         Zone[][] zones = game.getBoardGameAlexa().getZones();
         String last = "";
         for (int row = 0; row < zones.length; row++) {

@@ -1,122 +1,201 @@
 package jose.coronel.cl.battleship.game.board;
 
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+/**
+ * A 9x9 board. Alexa's board holds her ships; the player's board records Alexa's shots
+ * and the AI memory (hits, candidate shots, sunk ships).
+ * Getters and setters are used to keep the game in the Alexa session (JSON).
+ */
 public class BoardGame {
-
-    private static Logger log = getLogger(BoardGame.class);
-
-    private Zone[][] zones;
-    private int points;
 
     public static final int NUMBER_OF_ROWS = 9;
     public static final int NUMBER_OF_COLUMNS = 9;
-    private final int TOTAL_POINTS_TO_WIN = 17;
 
-    private List<Attack> nextAttack;
-    private List<Attack> impacts;
-    private Attack impact;
+    private Zone[][] zones;
+    private int points;
+    /** Candidate shots for the medium/advanced AI. */
+    private List<Attack> nextAttack = new ArrayList<>();
+    /** Hits on the ship Alexa is currently hunting (cleared when it sinks). */
+    private List<Attack> impacts = new ArrayList<>();
+    /** Last hit. */
+    private Attack impact = new Attack(-1, -1);
+    private Set<ShipType> sunkShips = EnumSet.noneOf(ShipType.class);
 
-    private int[][] pdfMatrix = {{0},{0}};
-
-    private boolean destroyerNotDestroyed;
-    private boolean submarineNotDestroyed;
-    private boolean cruiserNotDestroyed;
-    private boolean battleshipNotDestroyed;
-    private boolean aircraftCarrierNotDestroyed;
-
-    public BoardGame() {}
-
-    public void createNewBoardGame() {
-        destroyerNotDestroyed = true;
-        submarineNotDestroyed = true;
-        cruiserNotDestroyed = true;
-        battleshipNotDestroyed = true;
-        aircraftCarrierNotDestroyed = true;
-        nextAttack = new ArrayList<>();
-        impacts = new ArrayList<>();
-        impact = new Attack(-1, -1);
-        zones = new Zone[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
-
-        for (int fila = 0; fila < zones.length; fila++) {
-            for (int columna = 0; columna < zones[fila].length; columna++) {
-                Zone zone = new Zone();
-                zone.createNewZone();
-                zones[fila][columna] = zone;
-            }
-        }
+    public BoardGame() {
     }
 
+    public static BoardGame empty() {
+        BoardGame board = new BoardGame();
+        board.zones = new Zone[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
+        for (int row = 0; row < NUMBER_OF_ROWS; row++) {
+            for (int column = 0; column < NUMBER_OF_COLUMNS; column++) {
+                board.zones[row][column] = new Zone();
+            }
+        }
+        return board;
+    }
+
+    // ---------- shots ----------
 
     public void recordImpact(int row, int column) {
         zones[row][column].recordImpact();
-        points = points + 1;
+        points++;
         Attack attack = new Attack(row, column);
         impacts.add(attack);
         impact = attack;
     }
 
-
     public void recordFailedImpact(int row, int column) {
         zones[row][column].recordFailedImpact();
     }
 
-    public boolean wasAttacked(int row, int column){
+    public boolean wasAttacked(int row, int column) {
         return !zones[row][column].pendingToAttack();
     }
 
-    public boolean validateProbabilityDensityFunctionZone(int row, int column){
-        return zones[row][column].validateProbabilityDensityFunctionStatus();
+    public boolean isImpact(int row, int column) {
+        return zones[row][column].impacted();
     }
 
-    public boolean validateImpactStatusForPDF(int row, int column){
-        return zones[row][column].validateImpactStatus();
+    /** A ship could be here: the cell was not attacked yet, or it was a hit. */
+    public boolean canHoldShip(int row, int column) {
+        return zones[row][column].canHoldShip();
     }
-    public boolean hasShip(int row, int column){
+
+    /** All 17 ship cells were hit. */
+    public boolean allShipsHit() {
+        return points >= ShipType.TOTAL_CELLS;
+    }
+
+    // ---------- ships ----------
+
+    public void addShip(Ship ship) {
+        for (int i = 0; i < ship.getLength(); i++) {
+            int row = ship.getDirection() == Ship.VERTICAL ? ship.getRow() + i : ship.getRow();
+            int column = ship.getDirection() == Ship.HORIZONTAL ? ship.getColumn() + i : ship.getColumn();
+            zones[row][column].placeShip(ship.getIdentifier(), ship.getLength());
+        }
+    }
+
+    public boolean hasShip(int row, int column) {
         return zones[row][column].isHasShip();
     }
 
-    public int getImpactedShipIdentifier(int row, int column){
+    public int shipIdentifierAt(int row, int column) {
         return zones[row][column].getIdentifyShip();
     }
 
-    public boolean alreadyLostTheGame() {
-        return (points >= TOTAL_POINTS_TO_WIN) ? true : false;
+    /**
+     * The player says Alexa sank a ship with her shot on [row, column].
+     * @param type the ship, or null when unknown (only the hit is recorded)
+     * @return how many of the player's ships are still afloat
+     */
+    public int markSunk(ShipType type, int row, int column) {
+        if (type != null) {
+            sunkShips.add(type);
+        }
+        recordImpact(row, column);
+        nextAttack.clear();
+        impacts.clear();
+        return pendingShips();
     }
 
-    public void addShip(Ship ship) {
-        int row = ship.getRow();
-        int column = ship.getColumn();
-        int length = ship.getLength();
-        int direction = ship.getDirection();
-        int shipIdentifier = ship.getIdentifier();
-        
-        // 0 : Horizontal
-        // 1 : Vertical
-        if (direction == 0) {
-            for (int i = column; i < column+length; i++) {
-                zones[row][i].setHasShip(true);
-                zones[row][i].setShipLength(length);
-                zones[row][i].setIdentifyShip(shipIdentifier);
-            }
-        }
-        else if (direction == 1) {
-            for (int i = row; i < row+length; i++) {
-                zones[i][column].setHasShip(true);
-                zones[i][column].setShipLength(length);
-                zones[i][column].setIdentifyShip(shipIdentifier);
-            }
-        }
+    public boolean isAfloat(ShipType type) {
+        return !sunkShips.contains(type);
     }
 
+    /** True if some ship of that length is still afloat. */
+    public boolean anyAfloatWithLength(int length) {
+        for (ShipType type : ShipType.values()) {
+            if (type.length() == length && isAfloat(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int pendingShips() {
+        return ShipType.values().length - sunkShips.size();
+    }
+
+    /**
+     * When the player only says "sunk", guess the ship from the hits since the last sunk ship
+     * (plus the final shot): the afloat ship whose length is closest.
+     */
+    public Optional<ShipType> guessSunkShip() {
+        int length = impacts.size() + 1;
+        ShipType closest = null;
+        for (ShipType type : ShipType.values()) {
+            if (isAfloat(type) && (closest == null
+                    || Math.abs(type.length() - length) < Math.abs(closest.length() - length))) {
+                closest = type;
+            }
+        }
+        return Optional.ofNullable(closest);
+    }
+
+    // ---------- AI candidate shots ----------
+
+    public void addNewNextAttacks(List<Attack> newNextAttacks) {
+        nextAttack.addAll(newNextAttacks);
+    }
+
+    /** Removes candidates that were already attacked, and duplicates. */
+    public void pruneAttackedNextAttacks() {
+        List<Attack> unique = new ArrayList<>(new LinkedHashSet<>(nextAttack));
+        unique.removeIf(attack -> wasAttacked(attack.getRow(), attack.getColumn()));
+        nextAttack = unique;
+    }
+
+    /**
+     * Medium mode: takes the next shot from the candidate list.
+     * After two or more hits in a line it prefers candidates that continue that line.
+     * @return the next shot, or null when there are no candidates left
+     */
+    public Attack removeNextAttack(Random random) {
+        pruneAttackedNextAttacks();
+        if (nextAttack.isEmpty()) {
+            return null;
+        }
+        List<Attack> inLine = new ArrayList<>();
+        if (impacts.size() >= 2) {
+            Attack first = impacts.get(0);
+            Attack last = impacts.get(impacts.size() - 1);
+            boolean sameRow = first.getRow() == last.getRow();
+            boolean sameColumn = first.getColumn() == last.getColumn();
+            for (Attack attack : nextAttack) {
+                if ((sameRow && attack.getRow() == first.getRow())
+                        || (sameColumn && attack.getColumn() == first.getColumn())) {
+                    inLine.add(attack);
+                }
+            }
+        }
+        List<Attack> pool = inLine.isEmpty() ? nextAttack : inLine;
+        Attack chosen = pool.get(random.nextInt(pool.size()));
+        nextAttack.remove(chosen);
+        return chosen;
+    }
+
+    /** Board as text for debug logs: 0 pending, I impact, F fail. */
+    public String toDebugString() {
+        StringBuilder text = new StringBuilder();
+        for (Zone[] row : zones) {
+            for (Zone zone : row) {
+                text.append(zone.impacted() ? " I" : zone.pendingToAttack() ? " 0" : " F");
+            }
+            text.append('\n');
+        }
+        return text.toString();
+    }
+
+    // ---------- JSON (Alexa session) ----------
 
     public Zone[][] getZones() {
         return zones;
@@ -138,55 +217,8 @@ public class BoardGame {
         return nextAttack;
     }
 
-    /**
-     * Medium mode: takes the next shot from the candidate list.
-     * After two or more hits in a line it prefers candidates that continue that line.
-     * @return the next shot, or null when there are no candidates left
-     */
-    public Attack removeNextAttack() {
-        pruneAttackedNextAttacks();
-        log.info("Get next position to attack. Number of candidates : {}", nextAttack.size());
-        if (nextAttack.isEmpty()) {
-            return null;
-        }
-        List<Attack> inLine = new ArrayList<>();
-        if (impacts.size() >= 2) {
-            Attack first = impacts.get(0);
-            Attack last = impacts.get(impacts.size() - 1);
-            boolean sameRow = first.getRow() == last.getRow();
-            boolean sameColumn = first.getColumn() == last.getColumn();
-            for (Attack attack : nextAttack) {
-                if ((sameRow && attack.getRow() == first.getRow())
-                        || (sameColumn && attack.getColumn() == first.getColumn())) {
-                    inLine.add(attack);
-                }
-            }
-        }
-        List<Attack> pool = inLine.isEmpty() ? nextAttack : inLine;
-        Attack chosen = pool.get(new Random().nextInt(pool.size()));
-        nextAttack.remove(chosen);
-        return chosen;
-    }
-
-    /** Removes candidates that were already attacked, and duplicates. */
-    public void pruneAttackedNextAttacks() {
-        List<Attack> unique = new ArrayList<>(new LinkedHashSet<>(nextAttack));
-        unique.removeIf(attack -> wasAttacked(attack.getRow(), attack.getColumn()));
-        nextAttack = unique;
-    }
-
-    public void addNewNextAttacks(List<Attack> newNextAttacks) {
-        nextAttack.addAll(newNextAttacks);
-    }
-
-    public void setNextAttack(List<Attack> nextAttacks) {
-        if (nextAttacks != null){
-            this.nextAttack = nextAttacks;
-        }
-    }
-
-    public void cleanNextAttacks(){
-        nextAttack.clear();
+    public void setNextAttack(List<Attack> nextAttack) {
+        this.nextAttack = nextAttack == null ? new ArrayList<>() : nextAttack;
     }
 
     public List<Attack> getImpacts() {
@@ -194,112 +226,7 @@ public class BoardGame {
     }
 
     public void setImpacts(List<Attack> impacts) {
-        if (impacts != null){
-            this.impacts = impacts;
-        }
-    }
-
-    public int updateZonesToDestroyedAndCleanImpacts(Game game, int rowImpact, int columnImpact, String shipType){
-        log.info("Save destroy [{}, {}]", rowImpact, columnImpact);
-        switch(shipType) {
-            case "DESTRUCTOR":
-            case "DESTROYER":
-                log.info("Set Destroyer to sink status");
-                game.getBoardGamePlayer().setDestroyerNotDestroyed(false);
-                break;
-            case "SUBMARINO":
-            case "SUBMARINE":
-                log.info("Set Submarine to sink status");
-                game.getBoardGamePlayer().setSubmarineNotDestroyed(false);
-                break;
-            case "CRUCERO":
-            case "CRUISER":
-                log.info("Set Cruiser to sink status");
-                game.getBoardGamePlayer().setCruiserNotDestroyed(false);
-                break;
-            case "ACORAZADO":
-            case "BATTLESHIP":
-                log.info("Set Battleship to sink status");
-                game.getBoardGamePlayer().setBattleshipNotDestroyed(false);
-                break;
-            case "PORTAAVIONES":
-            case "AIRCRAFT CARRIER":
-                log.info("Set Aircraft Carrier to sink status");
-                game.getBoardGamePlayer().setAircraftCarrierNotDestroyed(false);
-        }
-        game.getBoardGamePlayer().recordImpact(rowImpact, columnImpact);
-
-        //Calculate new possibles attacks position
-        //ProbabilityDensityFunctionStrategy.generateNewAttackFromPdfOnDestroyMode(game.getBoardGamePlayer());
-        game.getBoardGamePlayer().cleanNextAttacks();
-        game.getBoardGamePlayer().getImpacts().clear();
-
-        return game.getBoardGamePlayer().numberOfPendingShipsToDestroy();
-    }
-
-
-    /**
-     * When the player only says "sunk" without naming the ship, guess it from the number of hits
-     * since the last sunk ship (plus the final shot). Returns an English type understood by
-     * updateZonesToDestroyedAndCleanImpacts.
-     */
-    public String guessSunkShipType() {
-        int length = impacts.size() + 1;
-        String[][] byLength = {
-                {"2", "DESTROYER"}, {"3", "SUBMARINE"}, {"3", "CRUISER"}, {"4", "BATTLESHIP"}, {"5", "AIRCRAFT CARRIER"}};
-        String closest = null;
-        int closestDistance = Integer.MAX_VALUE;
-        for (String[] ship : byLength) {
-            if (!isStillAfloat(ship[1])) {
-                continue;
-            }
-            int distance = Math.abs(Integer.parseInt(ship[0]) - length);
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closest = ship[1];
-            }
-        }
-        return closest == null ? "" : closest;
-    }
-
-    private boolean isStillAfloat(String type) {
-        switch (type) {
-            case "DESTROYER": return destroyerNotDestroyed;
-            case "SUBMARINE": return submarineNotDestroyed;
-            case "CRUISER": return cruiserNotDestroyed;
-            case "BATTLESHIP": return battleshipNotDestroyed;
-            case "AIRCRAFT CARRIER": return aircraftCarrierNotDestroyed;
-            default: return false;
-        }
-    }
-
-    public int numberOfPendingShipsToDestroy(){
-        int total = 0;
-        if(destroyerNotDestroyed){
-            total = total + 1;
-        }
-        if(submarineNotDestroyed){
-            total = total + 1;
-        }
-        if(cruiserNotDestroyed){
-            total = total + 1;
-        }
-        if(battleshipNotDestroyed){
-            total = total + 1;
-        }
-        if(aircraftCarrierNotDestroyed){
-            total = total + 1;
-        }
-        return total;
-    }
-
-
-    public int[][] getPdfMatrix() {
-        return pdfMatrix;
-    }
-
-    public void setPdfMatrix(int[][] pdfMatrix) {
-        this.pdfMatrix = pdfMatrix;
+        this.impacts = impacts == null ? new ArrayList<>() : impacts;
     }
 
     public Attack getImpact() {
@@ -310,122 +237,13 @@ public class BoardGame {
         this.impact = impact;
     }
 
-
-    public boolean isDestroyerNotDestroyed() {
-        return destroyerNotDestroyed;
+    public Set<ShipType> getSunkShips() {
+        return sunkShips;
     }
 
-    public void setDestroyerNotDestroyed(boolean destroyerNotDestroyed) {
-        this.destroyerNotDestroyed = destroyerNotDestroyed;
+    public void setSunkShips(Set<ShipType> sunkShips) {
+        this.sunkShips = sunkShips == null || sunkShips.isEmpty()
+                ? EnumSet.noneOf(ShipType.class) : EnumSet.copyOf(sunkShips);
     }
 
-    public boolean isSubmarineNotDestroyed() {
-        return submarineNotDestroyed;
-    }
-
-    public void setSubmarineNotDestroyed(boolean submarineNotDestroyed) {
-        this.submarineNotDestroyed = submarineNotDestroyed;
-    }
-
-    public boolean isCruiserNotDestroyed() {
-        return cruiserNotDestroyed;
-    }
-
-    public void setCruiserNotDestroyed(boolean cruiserNotDestroyed) {
-        this.cruiserNotDestroyed = cruiserNotDestroyed;
-    }
-
-    public boolean isBattleshipNotDestroyed() {
-        return battleshipNotDestroyed;
-    }
-
-    public void setBattleshipNotDestroyed(boolean battleshipNotDestroyed) {
-        this.battleshipNotDestroyed = battleshipNotDestroyed;
-    }
-
-    public boolean isAircraftCarrierNotDestroyed() {
-        return aircraftCarrierNotDestroyed;
-    }
-
-    public void setAircraftCarrierNotDestroyed(boolean aircraftCarrierNotDestroyed) {
-        this.aircraftCarrierNotDestroyed = aircraftCarrierNotDestroyed;
-    }
-
-    public boolean validateShipLengthTwoNotDestroyed() {
-        return destroyerNotDestroyed;
-    }
-
-    public boolean validateShipLengthThreeNotDestroyed() {
-        if(!submarineNotDestroyed && !cruiserNotDestroyed){
-            return false;
-        }
-        else{
-            return true;
-        }
-    }
-
-    public boolean validateShipLengthFourNotDestroyed() {
-        return battleshipNotDestroyed;
-    }
-
-    public boolean validateShipLengthFiveNotDestroyed() {
-        return aircraftCarrierNotDestroyed;
-    }
-
-
-    public void printBoardGame(){
-        log.info("********************************");
-        log.info("*    BOARD GAME");
-        log.info("********************************");
-        int size = zones.length;
-        for(int row=0; row < size; row++){
-            StringBuilder sb = new StringBuilder();
-            for(int i = 0; i <  7 * size ; i++){
-                sb.append("-");
-            }
-            sb.append("-");
-            log.info(sb.toString());
-
-            sb = new StringBuilder();
-            for(int i = 1; i <= zones[row].length; i++){
-                switch(zones[row][i - 1].getStatus()) {
-                    case 0:
-                        sb.append("|   0  ");
-                        break;
-                    case 1:
-                        sb.append("|   I  ");
-                        break;
-                    case 2:
-                        sb.append("|   F  ");
-                        break;
-                    case 3:
-                        sb.append("|   D  ");
-                        break;
-                }
-            }
-            sb.append("|");
-            log.info(sb.toString());
-
-            if(row == size -  1){
-                sb = new StringBuilder();
-
-                for(int i = 0; i <  7 * size ; i++){
-                    sb.append("-");
-                }
-                sb.append("-");
-                log.info(sb.toString());
-            }
-        }
-    }
-
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("BoardGame{");
-        sb.append("zones=").append(Arrays.toString(zones));
-        sb.append(", points=").append(points);
-        sb.append(", TOTAL_POINTS_TO_WIN=").append(TOTAL_POINTS_TO_WIN);
-        sb.append('}');
-        return sb.toString();
-    }
 }
