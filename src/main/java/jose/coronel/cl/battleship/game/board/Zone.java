@@ -2,7 +2,7 @@ package jose.coronel.cl.battleship.game.board;
 
 public class Zone {
 
-    public static final int ATTACKED = 0;
+    public static final int PENDING_ATTACK = 0;
     public static final int IMPACT = 1;
     public static final int FAIL = 2;
 
@@ -24,7 +24,15 @@ public class Zone {
 
 
     public boolean pendingToAttack() {
-        return (status == ATTACKED) ? true : false;
+        return (status == PENDING_ATTACK) ? true : false;
+    }
+
+    public boolean validateProbabilityDensityFunctionStatus(){
+        return (status == PENDING_ATTACK || status == IMPACT) ? true : false;
+    }
+
+    public boolean validateImpactStatus(){
+        return (status == IMPACT) ? true : false;
     }
 
 

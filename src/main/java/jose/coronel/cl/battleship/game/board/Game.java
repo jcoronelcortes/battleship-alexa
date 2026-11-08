@@ -4,13 +4,19 @@ import java.util.Arrays;
 
 public class Game {
 
-    private static final int[] LENGTH_SHIPS = {1, 1, 1, 1, 2, 2, 2, 3, 3, 4};
-    private static final int NUMBER_OF_SHIPS = 10;
-    
-    public Ship[] ships;
-    public BoardGame boardGameAlexa;
-    public BoardGame boardGamePlayer;
 
+    public static final int BASIC_MODE = 0;
+    public static final int MEDIUM_MODE = 1;
+    public static final int ADVANCE_MODE = 2;
+    private static final int[] LENGTH_SHIPS = {2, 3, 3, 4, 5};
+    private static final String[] TYPE_OF_SHIPS = {"Destroyer", "Submarine", "Cruiser", "Battleship", "Aircraft Carrier"};
+    private static final int NUMBER_OF_SHIPS = 5;
+    
+
+    private Ship[] ships;
+    private BoardGame boardGameAlexa;
+    private BoardGame boardGamePlayer;
+    private int gameMode;
 
     public Game() {
     }
@@ -18,7 +24,7 @@ public class Game {
     public void createNewGame() {
         ships = new Ship[NUMBER_OF_SHIPS];
         for (int i = 0; i < NUMBER_OF_SHIPS; i++) {
-            ships[i] = new Ship(i, LENGTH_SHIPS[i]);
+            ships[i] = new Ship(i, LENGTH_SHIPS[i], TYPE_OF_SHIPS[i]);
         }
 
         boardGameAlexa = new BoardGame();
@@ -30,7 +36,7 @@ public class Game {
 
 
     public int numberOfPendingShipsToConfigure() {
-        int total = 10;
+        int total = NUMBER_OF_SHIPS;
         for (Ship ship : ships) {
             if (ship.hasAnAssignedZone() && ship.hasAnAssignedDirection()) {
                 total--;
@@ -40,7 +46,7 @@ public class Game {
     }
 
 
-    public Ship getShipByIndifier(int identifier){
+    public Ship getShipByIdentifier(int identifier){
         for (int i = 0; i < NUMBER_OF_SHIPS; i++) {
             Ship ship = ships[i];
             if(ship.getIdentifier() == identifier){
@@ -75,6 +81,14 @@ public class Game {
         this.boardGamePlayer = boardGamePlayer;
     }
 
+    public int getGameMode() {
+        return gameMode;
+    }
+
+    public void setGameMode(int gameMode) {
+        this.gameMode = gameMode;
+    }
+
 
     @Override
     public String toString() {
@@ -82,6 +96,7 @@ public class Game {
         sb.append("ships=").append(Arrays.toString(ships));
         sb.append(", boardGameAlexa=").append(boardGameAlexa);
         sb.append(", boardGamePlayer=").append(boardGamePlayer);
+        sb.append(", gameMode=").append(gameMode);
         sb.append('}');
         return sb.toString();
     }

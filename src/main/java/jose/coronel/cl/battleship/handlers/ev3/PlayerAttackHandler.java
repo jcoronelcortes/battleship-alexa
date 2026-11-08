@@ -52,11 +52,6 @@ public class PlayerAttackHandler extends BattleshipHandler {
         log.debug("Execute player attack");
         SendCommandDirective payload = new BattleshipGame().executePlayerAttack(game, rowRequest, column);
 
-        jsonGame = MindstormAlexaUtil.gameToJson(game);
-        log.debug("New game status created from JSON information");
-
-        MindstormAlexaUtil.putSessionAttribute(handlerInput, "jsonGame", jsonGame);
-        log.debug("New game status saved on the session with key 'jsonGame'");
 
         int attackResult = payload.getAttackResult();
         if(attackResult == 4){
@@ -71,9 +66,19 @@ public class PlayerAttackHandler extends BattleshipHandler {
         else{
             log.info("Inform result of the attack to the player");
             String response = buildAttackResponse(payload, PositionConvertion.convertRowLetterToNumber(rowRequest), column);
-            log.error("Response attack : {}", response);
+            String alexaAttackResponse = alexaAttack(game, handlerInput, payload);
+            String myTurnToAttackSpeech = i18n(locale, "myTurnToAttack");
+            String finalResponse = response + myTurnToAttackSpeech + alexaAttackResponse;
+            log.debug("Response attack : {}", response);
+
+            jsonGame = MindstormAlexaUtil.gameToJson(game);
+            log.debug("New game status created from JSON information");
+
+            MindstormAlexaUtil.putSessionAttribute(handlerInput, "jsonGame", jsonGame);
+            log.debug("New game status saved on the session with key 'jsonGame'");
+
             return handlerInput.getResponseBuilder()
-                    .withSpeech(response)
+                    .withSpeech(finalResponse)
                     .withReprompt(i18n(locale, "reprompt"))
                     .withShouldEndSession(false)
                     .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
@@ -111,6 +116,23 @@ public class PlayerAttackHandler extends BattleshipHandler {
             default:
                 return "";
         }
+    }
+
+    private String alexaAttack(Game game, HandlerInput handlerInput, SendCommandDirective directive){
+        log.info("Executing Alexa Attack");
+        int[] attack = new BattleshipGame().generateAlexaAttack(game);
+        int row = attack[0];
+        int column = attack[1];
+        MindstormAlexaUtil.putSessionAttribute(handlerInput, "alexaAttackRow", String.valueOf(row));
+        MindstormAlexaUtil.putSessionAttribute(handlerInput, "alexaAttackColumn", String.valueOf(column));
+
+        String rowLetter = PositionConvertion.convertNumberToRowLetter(row);
+        column = column + 1;
+        log.info("Alexa has executed an attack on : [{}, {}]", rowLetter, column);
+        directive.setAlexaRow(rowLetter);
+        directive.setAlexaColumn(String.valueOf(column));
+        String response = i18n(locale, "alexaAttackSpeechText", rowLetter, String.valueOf(column));
+        return response;
     }
 
 

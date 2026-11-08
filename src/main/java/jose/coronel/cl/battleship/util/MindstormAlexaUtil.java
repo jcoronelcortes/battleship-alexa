@@ -97,10 +97,9 @@ public class MindstormAlexaUtil {
     }
 
     public static String gameToJson(Game game){
-        ObjectMapper mapper = new ObjectMapper();
         String jsopnGame = "";
         try {
-            jsopnGame = mapper.writeValueAsString(game);
+            jsopnGame = new ObjectMapper().writeValueAsString(game);
         }
         catch (JsonProcessingException e) {
             log.error("Can't process game status to JSON . Error message : " + e.getMessage(), e);

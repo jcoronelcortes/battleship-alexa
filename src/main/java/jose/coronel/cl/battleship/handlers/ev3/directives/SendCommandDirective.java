@@ -2,6 +2,12 @@ package jose.coronel.cl.battleship.handlers.ev3.directives;
 
 public class SendCommandDirective {
 
+    public static final int IMPACT = 1;
+    public static final int SHIP_DESTROYED = 2;
+    public static final int FAIL = 3;
+    public static final int PLAYER_WON = 4;
+    public static final int DUPLICATE_ATTACK = 5;
+
     private String type;
     private String command;
     /*
@@ -14,6 +20,8 @@ public class SendCommandDirective {
     private String shipDestroyed = "NO";
     private String row;
     private String column;
+    private String alexaRow;
+    private String alexaColumn;
     private String logZones;
 
 
@@ -93,5 +101,21 @@ public class SendCommandDirective {
 
     public void setLogZones(String logZones) {
         this.logZones = logZones;
+    }
+
+    public String getAlexaRow() {
+        return alexaRow;
+    }
+
+    public void setAlexaRow(String alexaRow) {
+        this.alexaRow = alexaRow;
+    }
+
+    public String getAlexaColumn() {
+        return alexaColumn;
+    }
+
+    public void setAlexaColumn(String alexaColumn) {
+        this.alexaColumn = alexaColumn;
     }
 }

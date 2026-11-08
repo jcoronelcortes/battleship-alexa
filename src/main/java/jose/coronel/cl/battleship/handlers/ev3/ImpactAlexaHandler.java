@@ -3,6 +3,9 @@ package jose.coronel.cl.battleship.handlers.ev3;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
+import jose.coronel.cl.battleship.game.ai.ParityStrategy;
+import jose.coronel.cl.battleship.game.ai.ProbabilityDensityFunctionStrategy;
+import jose.coronel.cl.battleship.game.board.Attack;
 import jose.coronel.cl.battleship.game.board.Game;
 import jose.coronel.cl.battleship.handlers.common.BattleshipHandler;
 import jose.coronel.cl.battleship.handlers.ev3.directives.SendCommandDirective;
@@ -10,6 +13,7 @@ import jose.coronel.cl.battleship.game.BattleshipGame;
 import jose.coronel.cl.battleship.util.MindstormAlexaUtil;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -31,9 +35,9 @@ public class ImpactAlexaHandler extends BattleshipHandler {
     public Optional<Response> procesarHandle(HandlerInput handlerInput, IntentRequest intentRequest) {
         log.debug("Executing ImpactAlexaHandler");
 
-        String alexaAtaqueFila = (String) MindstormAlexaUtil.getValueFromSession(handlerInput,"alexaAttackRow");
-        String alexaAtaqueColumna = (String) MindstormAlexaUtil.getValueFromSession(handlerInput,"alexaAttackColumn");
-        log.info("Impact attack : [{}, {}]", alexaAtaqueFila, alexaAtaqueColumna);
+        String alexaAttackRow = (String) MindstormAlexaUtil.getValueFromSession(handlerInput,"alexaAttackRow");
+        String alexaAttackColumn = (String) MindstormAlexaUtil.getValueFromSession(handlerInput,"alexaAttackColumn");
+        log.info("Impact attack : [{}, {}]", alexaAttackRow, alexaAttackColumn);
 
         String jsonGame = (String) MindstormAlexaUtil.getValueFromSession(handlerInput, "jsonGame");
         log.debug("Get game status from session");
@@ -41,7 +45,8 @@ public class ImpactAlexaHandler extends BattleshipHandler {
         Game game = MindstormAlexaUtil.jsonToGame(jsonGame);
         log.debug("Game restored from JSON information");
 
-        new BattleshipGame().saveImpactOnPlayerBoard(game, alexaAtaqueFila, alexaAtaqueColumna);
+        new BattleshipGame().saveImpactOnPlayerBoard(game, Integer.parseInt(alexaAttackRow),
+                Integer.parseInt(alexaAttackColumn));
         log.info("Player board updated with impact");
 
         jsonGame = MindstormAlexaUtil.gameToJson(game);
@@ -59,4 +64,5 @@ public class ImpactAlexaHandler extends BattleshipHandler {
                 .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                 .build();
     }
+
 }

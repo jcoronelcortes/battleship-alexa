@@ -29,7 +29,7 @@ public class StartGameHandler extends BattleshipHandler {
 
     @Override
     public Optional<Response> procesarHandle(HandlerInput handlerInput, IntentRequest intentRequest) {
-        log.debug("Executing IniciarJuegoHandler");
+        log.debug("Executing StartGameHandler");
 
         Game game = new BattleshipGame().startGame();
         log.info("A new game was created");

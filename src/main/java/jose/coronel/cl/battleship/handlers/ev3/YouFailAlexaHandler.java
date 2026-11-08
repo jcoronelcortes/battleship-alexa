@@ -32,7 +32,7 @@ public class YouFailAlexaHandler extends BattleshipHandler {
         log.debug("Executing YouFailAlexaHandler");
         String alexaAtaqueFila = (String) MindstormAlexaUtil.getValueFromSession(handlerInput,"alexaAttackRow");
         String alexaAtaqueColumna = (String) MindstormAlexaUtil.getValueFromSession(handlerInput,"alexaAttackColumn");
-        log.info("Impact attack : [{}, {}]", alexaAtaqueFila, alexaAtaqueColumna);
+        log.info("Fail impact attack : [{}, {}]", alexaAtaqueFila, alexaAtaqueColumna);
 
         String jsonGame = (String) MindstormAlexaUtil.getValueFromSession(handlerInput, "jsonGame");
         log.debug("Get game status from session");
@@ -40,7 +40,7 @@ public class YouFailAlexaHandler extends BattleshipHandler {
         Game game = MindstormAlexaUtil.jsonToGame(jsonGame);
         log.debug("Game restored from JSON information");
 
-        new BattleshipGame().saveFailImpactOnPlayerBoard(game, alexaAtaqueFila, alexaAtaqueColumna);
+        new BattleshipGame().saveFailImpactOnPlayerBoard(game.getBoardGamePlayer(), alexaAtaqueFila, alexaAtaqueColumna);
         log.info("Player board updated with fail impact");
 
         jsonGame = MindstormAlexaUtil.gameToJson(game);

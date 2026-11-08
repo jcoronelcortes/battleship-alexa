@@ -20,29 +20,17 @@ public class Ship {
 
     public Ship(){}
 
-    public Ship(int identifier, int length) {
+    public Ship(int identifier, int length, String typeOfShip) {
         this.identifier = identifier;
         this.length = length;
         this.lifePoints = length;
-        this.typeOfShip = typeOfShip(length);
+        this.typeOfShip = typeOfShip;
         this.row = -1;
         this.column = -1;
         this.direction = UNASSIGNED_DIRECTION;
         log.info("Creating ship with length : {} - type : {} - identifier : {} ", length, typeOfShip, identifier);
     }
 
-    private String typeOfShip(int length){
-        switch (length){
-            case 1:
-                return "Submarine";
-            case 2:
-                return "Destroyer";
-            case 3:
-                return "Cruise";
-            default:
-                return "Battleship";
-        }
-    }
 
     public void reduceOneLifePoint(){
         this.lifePoints = lifePoints -1;
