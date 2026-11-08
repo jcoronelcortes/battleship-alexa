@@ -6,6 +6,8 @@ public class Zone {
     public static final int PENDING_ATTACK = 0;
     public static final int IMPACT = 1;
     public static final int FAIL = 2;
+    /** Hit that belongs to a ship the player already reported as sunk. */
+    public static final int SUNK = 3;
 
     private int identifyShip;
     private boolean hasShip;
@@ -16,13 +18,22 @@ public class Zone {
         return status == PENDING_ATTACK;
     }
 
-    /** A ship could still be here: not attacked yet, or already hit. */
+    /** An afloat ship could be here: not attacked yet, or hit but not part of a sunk ship. */
     public boolean canHoldShip() {
         return status == PENDING_ATTACK || status == IMPACT;
     }
 
+    /** Hit on a ship that is still afloat. */
     public boolean impacted() {
         return status == IMPACT;
+    }
+
+    public boolean sunk() {
+        return status == SUNK;
+    }
+
+    public void recordSunk() {
+        status = SUNK;
     }
 
     public void recordImpact() {

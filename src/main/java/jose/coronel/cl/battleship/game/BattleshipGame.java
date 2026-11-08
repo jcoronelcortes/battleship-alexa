@@ -96,10 +96,8 @@ public class BattleshipGame {
      * @return how many of the player's ships are still afloat
      */
     public int recordAlexaSunk(Game game, ShipType type, int row, int column) {
-        BoardGame board = game.getBoardGamePlayer();
-        ShipType sunk = type != null ? type : board.guessSunkShip().orElse(null);
-        log.info("Alexa sank the player's {}", sunk);
-        return board.markSunk(sunk, row, column);
+        log.info("Alexa sank the player's {}", type != null ? type : "ship (not named, it will be guessed)");
+        return game.getBoardGamePlayer().markSunk(type, row, column);
     }
 
 }

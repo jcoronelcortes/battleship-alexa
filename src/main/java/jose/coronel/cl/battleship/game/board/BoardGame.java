@@ -64,7 +64,11 @@ public class BoardGame {
         return zones[row][column].impacted();
     }
 
-    /** A ship could be here: the cell was not attacked yet, or it was a hit. */
+    public boolean isSunk(int row, int column) {
+        return zones[row][column].sunk();
+    }
+
+    /** An afloat ship could be here: not attacked yet, or a hit that is not part of a sunk ship. */
     public boolean canHoldShip(int row, int column) {
         return zones[row][column].canHoldShip();
     }
@@ -98,13 +102,72 @@ public class BoardGame {
      * @return how many of the player's ships are still afloat
      */
     public int markSunk(ShipType type, int row, int column) {
-        if (type != null) {
-            sunkShips.add(type);
-        }
         recordImpact(row, column);
+        ShipType sunk = type != null ? type : guessSunkShip(row, column).orElse(null);
+        if (sunk != null) {
+            sunkShips.add(sunk);
+            markShipCellsSunk(sunk.length(), row, column);
+        }
         nextAttack.clear();
         impacts.clear();
         return pendingShips();
+    }
+
+    /**
+     * Finds the line of hits that was the sunk ship (it contains the final shot) and marks it SUNK,
+     * so those cells stop counting as possible ships and hits on other ships are kept.
+     * Only when exactly one line fits: then it is certainly right. With touching ships several lines
+     * may fit; guessing could hide a ship that is still afloat, so the hits are left as they are.
+     */
+    private void markShipCellsSunk(int length, int row, int column) {
+        int[] found = null;
+        for (int[] d : new int[][]{{0, 1}, {1, 0}}) {
+            for (int offset = 0; offset < length; offset++) {
+                int startRow = row - d[0] * offset;
+                int startColumn = column - d[1] * offset;
+                if (lineOfHits(startRow, startColumn, d, length)) {
+                    if (found != null) {
+                        return; // ambiguous
+                    }
+                    found = new int[]{startRow, startColumn, d[0], d[1]};
+                }
+            }
+        }
+        if (found != null) {
+            for (int i = 0; i < length; i++) {
+                zones[found[0] + found[2] * i][found[1] + found[3] * i].recordSunk();
+            }
+        }
+    }
+
+    /** Number of consecutive hits on afloat ships through [row, column] along a direction. */
+    private int hitRun(int row, int column, int[] d) {
+        int run = 1;
+        for (int sign : new int[]{1, -1}) {
+            int r = row + sign * d[0];
+            int c = column + sign * d[1];
+            while (inside(r, c) && zones[r][c].impacted()) {
+                run++;
+                r += sign * d[0];
+                c += sign * d[1];
+            }
+        }
+        return run;
+    }
+
+    private boolean lineOfHits(int row, int column, int[] d, int length) {
+        for (int i = 0; i < length; i++) {
+            int r = row + d[0] * i;
+            int c = column + d[1] * i;
+            if (!inside(r, c) || !zones[r][c].impacted()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean inside(int row, int column) {
+        return row >= 0 && row < NUMBER_OF_ROWS && column >= 0 && column < NUMBER_OF_COLUMNS;
     }
 
     public boolean isAfloat(ShipType type) {
@@ -126,11 +189,22 @@ public class BoardGame {
     }
 
     /**
-     * When the player only says "sunk", guess the ship from the hits since the last sunk ship
-     * (plus the final shot): the afloat ship whose length is closest.
+     * When the player only says "sunk" after the final shot on [row, column] (already recorded as a hit):
+     * the afloat ship whose length is closest to the longest line of hits through that cell,
+     * never longer than that line if a shorter ship fits.
      */
-    public Optional<ShipType> guessSunkShip() {
-        int length = impacts.size() + 1;
+    public Optional<ShipType> guessSunkShip(int row, int column) {
+        int line = Math.max(hitRun(row, column, new int[]{0, 1}), hitRun(row, column, new int[]{1, 0}));
+        ShipType best = null;
+        for (ShipType type : ShipType.values()) {
+            if (isAfloat(type) && type.length() <= line && (best == null || type.length() > best.length())) {
+                best = type;
+            }
+        }
+        return best != null ? Optional.of(best) : closestAfloat(line);
+    }
+
+    private Optional<ShipType> closestAfloat(int length) {
         ShipType closest = null;
         for (ShipType type : ShipType.values()) {
             if (isAfloat(type) && (closest == null
@@ -183,12 +257,12 @@ public class BoardGame {
         return chosen;
     }
 
-    /** Board as text for debug logs: 0 pending, I impact, F fail. */
+    /** Board as text for debug logs: 0 pending, I hit, S sunk, F fail. */
     public String toDebugString() {
         StringBuilder text = new StringBuilder();
         for (Zone[] row : zones) {
             for (Zone zone : row) {
-                text.append(zone.impacted() ? " I" : zone.pendingToAttack() ? " 0" : " F");
+                text.append(zone.impacted() ? " I" : zone.sunk() ? " S" : zone.pendingToAttack() ? " 0" : " F");
             }
             text.append('\n');
         }

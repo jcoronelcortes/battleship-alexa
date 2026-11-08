@@ -4,8 +4,10 @@ import jose.coronel.cl.battleship.game.board.Game;
 import jose.coronel.cl.battleship.game.board.Attack;
 import jose.coronel.cl.battleship.game.board.ShipType;
 import jose.coronel.cl.battleship.session.GameSession;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -52,17 +54,40 @@ class AlexaAiSimulationTest {
         assertTrue(advanced < medium, "advanced (" + advanced + ") should beat medium (" + medium + ")");
     }
 
+    /**
+     * Benchmark, only on request:  mvn test -Dtest=AlexaAiSimulationTest#benchmark -Dai.benchmark=true
+     * Same boards for every level (seeded), for players who name the sunk ship and players who only say "sunk".
+     */
+    @Test
+    void benchmark() {
+        Assumptions.assumeTrue(Boolean.getBoolean("ai.benchmark"));
+        int games = Integer.getInteger("ai.games", 3000);
+        for (boolean named : new boolean[]{true, false}) {
+            for (int mode : Integer.getInteger("ai.mode", -1) >= 0 ? new int[]{Integer.getInteger("ai.mode")} : new int[]{Game.BASIC_MODE, Game.MEDIUM_MODE, Game.ADVANCE_MODE}) {
+                Random boards = new Random(42);
+                int[] shots = new int[games];
+                for (int i = 0; i < games; i++) {
+                    shots[i] = playGame(mode, randomPlayerBoard(boards), named);
+                }
+                Arrays.sort(shots);
+                System.out.printf("BENCH %-8s %-14s mean %.2f  median %d  p90 %d  best %d  worst %d%n",
+                        new String[]{"BASIC", "MEDIUM", "ADVANCED"}[mode], named ? "names ship" : "says 'sunk'",
+                        Arrays.stream(shots).average().orElse(0), shots[games / 2], shots[games * 9 / 10],
+                        shots[0], shots[games - 1]);
+            }
+        }
+    }
+
     private double averageShots(int mode) {
         long total = 0;
         for (int i = 0; i < GAMES; i++) {
-            total += playGame(mode);
+            total += playGame(mode, randomPlayerBoard(random), true);
         }
         return (double) total / GAMES;
     }
 
     /** @return number of shots Alexa needed to sink the whole fleet */
-    private int playGame(int mode) {
-        int[][] ships = randomPlayerBoard();
+    private static int playGame(int mode, int[][] ships, boolean nameSunkShip) {
         int[] cellsLeft = LENGTHS.clone();
         boolean[][] attacked = new boolean[SIZE][SIZE];
         int hits = 0;
@@ -90,7 +115,7 @@ class AlexaAiSimulationTest {
                 cellsLeft[ship]--;
                 if (cellsLeft[ship] == 0) {
                     // Player says "destroyed <ship>"
-                    engine.recordAlexaSunk(game, ShipType.values()[ship], row, column);
+                    engine.recordAlexaSunk(game, nameSunkShip ? ShipType.values()[ship] : null, row, column);
                 } else {
                     // Player says "impact"
                     engine.recordAlexaHit(game, row, column);
@@ -103,12 +128,12 @@ class AlexaAiSimulationTest {
         return fail("mode " + mode + " did not sink the fleet in " + SIZE * SIZE + " shots");
     }
 
-    private Game roundTrip(Game game) {
+    private static Game roundTrip(Game game) {
         return GameSession.fromJson(GameSession.toJson(game));
     }
 
     /** Random non-overlapping placement. Cell value is the ship index, or -1 for water. */
-    private int[][] randomPlayerBoard() {
+    private static int[][] randomPlayerBoard(Random random) {
         int[][] board = new int[SIZE][SIZE];
         for (int[] row : board) {
             java.util.Arrays.fill(row, -1);

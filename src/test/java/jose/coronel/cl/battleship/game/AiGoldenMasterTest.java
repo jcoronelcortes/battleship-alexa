@@ -24,8 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  * 300 reproducible game situations (own seeded generator, independent of production code) are
  * replayed through the game engine. For each one we record what the AI computes: the candidate
- * shots list and the hunt-mode probability matrix. The expected file was generated BEFORE the
- * 2026 refactor, so any change in AI behaviour makes this test fail.
+ * shots list (medium) and the probability matrix (advanced). Any change in AI behaviour makes this
+ * test fail.
+ *
+ * History: MEDIUM lines were captured before the 2026 refactor and are unchanged. ADVANCED lines were
+ * regenerated on purpose when the advanced AI was rewritten to follow the Kent State PDF paper.
  *
  * Regenerate only on purpose: mvn test -Dtest=AiGoldenMasterTest -Dgolden.write=true
  */
@@ -79,7 +82,7 @@ class AiGoldenMasterTest {
 
         String pdf = "";
         if (mode == Game.ADVANCE_MODE) {
-            pdf = Arrays.stream(AdvancedStrategy.huntProbabilities(board)).map(Arrays::toString).collect(Collectors.joining(""));
+            pdf = Arrays.stream(AdvancedStrategy.probabilities(board)).map(Arrays::toString).collect(Collectors.joining(""));
         }
         return next + "|" + pdf;
     }
