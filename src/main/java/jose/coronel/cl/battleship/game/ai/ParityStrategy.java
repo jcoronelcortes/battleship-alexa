@@ -16,13 +16,13 @@ public class ParityStrategy {
 
     public static void addNewNextAttacks(BoardGame playerBoardGame, int row, int column){
         List<Attack> newNextAttacks = new ArrayList<>();
-        if((row - 1) > 0 && !playerBoardGame.wasAttacked(row - 1 , column)){
+        if((row - 1) >= 0 && !playerBoardGame.wasAttacked(row - 1 , column)){
             newNextAttacks.add(new Attack(row - 1, column));
         }
         if((row + 1) < 9 && !playerBoardGame.wasAttacked(row + 1 , column)){
             newNextAttacks.add(new Attack(row + 1, column));
         }
-        if((column - 1) > 0 && !playerBoardGame.wasAttacked(row , column - 1)){
+        if((column - 1) >= 0 && !playerBoardGame.wasAttacked(row , column - 1)){
             newNextAttacks.add(new Attack(row, column - 1));
         }
         if((column + 1) < 9 && !playerBoardGame.wasAttacked(row , column + 1)){

@@ -157,15 +157,13 @@ public class BattleshipGame {
             case Game.BASIC_MODE:
                 return createRandomAttack(game, false);
             case Game.MEDIUM_MODE:
-                game.getBoardGamePlayer().printBoardGame();
-                nextAttacks = game.getBoardGamePlayer().getNextAttack();
-                if(nextAttacks.isEmpty()){
+                Attack next = game.getBoardGamePlayer().removeNextAttack();
+                if(next == null){
                     return createRandomAttack(game, true);
                 }
-                else{
-                    return getNextAttack(game.getBoardGamePlayer().removeNextAttack());
-                }
+                return getNextAttack(next);
             case Game.ADVANCE_MODE:
+                game.getBoardGamePlayer().pruneAttackedNextAttacks();
                 if(game.getBoardGamePlayer().getNextAttack().isEmpty()){
                     log.debug("Playing on 'Hunt Mode'");
                     return getNextAttack(ProbabilityDensityFunctionStrategy.generateNewAttackFromPdfOnHuntMode(game.getBoardGamePlayer()));
@@ -189,34 +187,26 @@ public class BattleshipGame {
         return attack;
     }
 
+    /**
+     * Random shot on a cell not attacked yet. With onlyParPosition it only uses a checkerboard pattern
+     * (every ship covers at least one of those cells), falling back to any free cell when none is left.
+     */
     private int[] createRandomAttack(Game game, boolean onlyParPosition){
         log.info("Create random attack with only par position : {}", onlyParPosition);
-        Random random = new Random();
-        int row;
-        int column;
-        do {
-            if (onlyParPosition) {
-                row = random.nextInt(9);
-                if ((row % 2) == 0) {
-                    do {
-                        column = random.nextInt(9);
+        List<int[]> free = new ArrayList<>();
+        List<int[]> freeParity = new ArrayList<>();
+        for (int row = 0; row < BoardGame.NUMBER_OF_ROWS; row++) {
+            for (int column = 0; column < BoardGame.NUMBER_OF_COLUMNS; column++) {
+                if (!game.getBoardGamePlayer().wasAttacked(row, column)) {
+                    free.add(new int[]{row, column});
+                    if ((row + column) % 2 == 0) {
+                        freeParity.add(new int[]{row, column});
                     }
-                    while ((column % 2) != 0);
-                } else {
-                    do {
-                        column = random.nextInt(9);
-                    }
-                    while ((column % 2) == 0);
                 }
             }
-            else {
-                row = random.nextInt(9);
-                column = random.nextInt(9);
-            }
         }
-        while (game.getBoardGamePlayer().wasAttacked(row, column));
-        int[] attack = {row, column};
-        return attack;
+        List<int[]> pool = (onlyParPosition && !freeParity.isEmpty()) ? freeParity : free;
+        return pool.get(new Random().nextInt(pool.size()));
     }
 
 

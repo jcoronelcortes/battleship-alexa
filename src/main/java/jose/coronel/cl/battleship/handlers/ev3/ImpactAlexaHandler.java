@@ -57,11 +57,11 @@ public class ImpactAlexaHandler extends BattleshipHandler {
 
         SendCommandDirective payload = new SendCommandDirective("command","alexa_impact");
         int randomSpeech = new Random().nextInt(6) + 1;
+        sendToRobot(payload);
         return handlerInput.getResponseBuilder()
                 .withSpeech(i18n(locale, "impactItIsYourTurnSpeechText" + randomSpeech))
                 .withReprompt(i18n(locale, "reprompt"))
                 .withShouldEndSession(false)
-                .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                 .build();
     }
 

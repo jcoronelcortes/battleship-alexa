@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -137,36 +138,41 @@ public class BoardGame {
         return nextAttack;
     }
 
+    /**
+     * Medium mode: takes the next shot from the candidate list.
+     * After two or more hits in a line it prefers candidates that continue that line.
+     * @return the next shot, or null when there are no candidates left
+     */
     public Attack removeNextAttack() {
-        //TODO que trate de seguri la linea segun los ultimos ataques que estan en impacts
-        log.info("Get next position to attack. Number of attacks : {}", nextAttack.size());
-        if(impacts.size() < 2){
-            int attack = new Random().nextInt(nextAttack.size());
-            return nextAttack.remove(attack);
+        pruneAttackedNextAttacks();
+        log.info("Get next position to attack. Number of candidates : {}", nextAttack.size());
+        if (nextAttack.isEmpty()) {
+            return null;
         }
-        else{
-            ArrayList<Attack> posibleAttacks = new ArrayList<>();
-            if(impacts.get(0).getRow() == impacts.get(0).getRow()){
-                int row = impacts.get(0).getRow();
-                log.info("Get next attack from row : {}", row);
-                for (Attack attack : impacts){
-                    if (attack.getRow() == row){
-                        posibleAttacks.add(attack);
-                    }
+        List<Attack> inLine = new ArrayList<>();
+        if (impacts.size() >= 2) {
+            Attack first = impacts.get(0);
+            Attack last = impacts.get(impacts.size() - 1);
+            boolean sameRow = first.getRow() == last.getRow();
+            boolean sameColumn = first.getColumn() == last.getColumn();
+            for (Attack attack : nextAttack) {
+                if ((sameRow && attack.getRow() == first.getRow())
+                        || (sameColumn && attack.getColumn() == first.getColumn())) {
+                    inLine.add(attack);
                 }
             }
-            else{
-                int column = impacts.get(0).getColumn();
-                log.info("Get next attack from column : {}", column);
-                for (Attack attack : impacts){
-                    if (attack.getColumn() == column){
-                        posibleAttacks.add(attack);
-                    }
-                }
-            }
-            int attack = new Random().nextInt(posibleAttacks.size());
-            return posibleAttacks.remove(attack);
         }
+        List<Attack> pool = inLine.isEmpty() ? nextAttack : inLine;
+        Attack chosen = pool.get(new Random().nextInt(pool.size()));
+        nextAttack.remove(chosen);
+        return chosen;
+    }
+
+    /** Removes candidates that were already attacked, and duplicates. */
+    public void pruneAttackedNextAttacks() {
+        List<Attack> unique = new ArrayList<>(new LinkedHashSet<>(nextAttack));
+        unique.removeIf(attack -> wasAttacked(attack.getRow(), attack.getColumn()));
+        nextAttack = unique;
     }
 
     public void addNewNextAttacks(List<Attack> newNextAttacks) {
@@ -226,6 +232,7 @@ public class BoardGame {
         //Calculate new possibles attacks position
         //ProbabilityDensityFunctionStrategy.generateNewAttackFromPdfOnDestroyMode(game.getBoardGamePlayer());
         game.getBoardGamePlayer().cleanNextAttacks();
+        game.getBoardGamePlayer().getImpacts().clear();
 
         return game.getBoardGamePlayer().numberOfPendingShipsToDestroy();
     }

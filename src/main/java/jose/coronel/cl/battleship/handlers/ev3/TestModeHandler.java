@@ -50,9 +50,9 @@ public class TestModeHandler extends BattleshipHandler {
         }
 
         SendCommandDirective payload = new SendCommandDirective("command","test_mode", logZones.toString());
+        sendToRobot(payload);
         return handlerInput.getResponseBuilder()
                 .withSpeech(zones.toString())
-                .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                 .withReprompt(i18n(locale, "reprompt"))
                 .withShouldEndSession(false)
                 .build();

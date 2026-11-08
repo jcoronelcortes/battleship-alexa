@@ -41,12 +41,12 @@ public class StartGameHandler extends BattleshipHandler {
         log.debug("JSON with game information saved on the session with key 'jsonGame'");
 
         SendCommandDirective payload = new SendCommandDirective("command","start_game");
+        sendToRobot(payload);
         return handlerInput.getResponseBuilder()
                 .withSpeech(i18n(locale, "startGameSpeechText",
                         "<audio src=\"soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_intro_01\"/>"))
                 .withReprompt(i18n(locale, "reprompt"))
                 .withShouldEndSession(false)
-                .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                 .build();
     }
 

@@ -5,7 +5,6 @@ import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
 import jose.coronel.cl.battleship.handlers.common.BattleshipHandler;
 import jose.coronel.cl.battleship.handlers.ev3.directives.SendCommandDirective;
-import jose.coronel.cl.battleship.util.MindstormAlexaUtil;
 import org.slf4j.Logger;
 
 import java.util.Optional;
@@ -28,9 +27,9 @@ public class AlexaWinsTheGameHandler extends BattleshipHandler {
     public Optional<Response> procesarHandle(HandlerInput handlerInput, IntentRequest intentRequest) {
         log.debug("Executing AlexaWinsTheGameHandler");
         SendCommandDirective payload = new SendCommandDirective("command","finish_game");
+        sendToRobot(payload);
         return handlerInput.getResponseBuilder()
                 .withSpeech(i18n(locale, "alexaWinsSpeechText"))
-                .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                 .withShouldEndSession(true)
                 .build();
     }

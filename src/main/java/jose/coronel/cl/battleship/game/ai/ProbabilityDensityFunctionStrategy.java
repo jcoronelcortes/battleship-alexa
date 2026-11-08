@@ -387,15 +387,6 @@ public class ProbabilityDensityFunctionStrategy {
                         }
                     }while (stop);
                 }
-                do{
-                    if (playerBoardGame.validateImpactStatusForPDF(impactRow, reverseColumn)){
-                        deltaImpact = deltaImpact + 1;
-                        reverseColumn = reverseColumn - 1;
-                    }
-                    else{
-                        stop = false;
-                    }
-                }while (stop);
                 if(deltaImpact > 1){
                     for(int column = impactColumn; column <= endPosition; column++){
                         pdfMatrix[impactRow][column] = pdfMatrix[impactRow][column] * deltaImpact;

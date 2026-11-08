@@ -48,11 +48,11 @@ public class GameModeHandler extends BattleshipHandler {
         log.debug("New game status saved on session with key 'jsonGame'");
 
         SendCommandDirective payload = new SendCommandDirective("command","game_mode_configured");
+        sendToRobot(payload);
         return handlerInput.getResponseBuilder()
                 .withSpeech(i18n(locale, "gameModeSpeechText", gameMode.toLowerCase()))
                 .withReprompt(i18n(locale, "reprompt"))
                 .withShouldEndSession(false)
-                .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                 .build();
     }
 

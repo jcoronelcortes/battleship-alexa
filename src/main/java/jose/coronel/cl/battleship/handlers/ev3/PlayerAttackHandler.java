@@ -56,10 +56,11 @@ public class PlayerAttackHandler extends BattleshipHandler {
         int attackResult = payload.getAttackResult();
         if(attackResult == 4){
             log.info("Player won the game");
-            payload = new SendCommandDirective("command","finish_game");
+            // First the robot marks the winning shot, then it celebrates
+            sendToRobot(payload);
+            sendToRobot(new SendCommandDirective("command","finish_game"));
             return handlerInput.getResponseBuilder()
                     .withSpeech(i18n(locale, "impactYouWin"))
-                    .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                     .withShouldEndSession(true)
                     .build();
         }
@@ -77,11 +78,11 @@ public class PlayerAttackHandler extends BattleshipHandler {
             MindstormAlexaUtil.putSessionAttribute(handlerInput, "jsonGame", jsonGame);
             log.debug("New game status saved on the session with key 'jsonGame'");
 
+            sendToRobot(payload);
             return handlerInput.getResponseBuilder()
                     .withSpeech(finalResponse)
                     .withReprompt(i18n(locale, "reprompt"))
                     .withShouldEndSession(false)
-                    .addDirective(MindstormAlexaUtil.buildDirective(endpointId, MindstormAlexaUtil.NAMESPACE, MindstormAlexaUtil.NAME_CONTROL, payload))
                     .build();
         }
     }
