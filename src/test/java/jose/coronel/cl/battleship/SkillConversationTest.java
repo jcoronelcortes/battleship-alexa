@@ -10,7 +10,16 @@ import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.ResponseEnvelope;
 import com.amazon.ask.model.Session;
 import com.amazon.ask.model.Slot;
+import com.amazon.ask.model.slu.entityresolution.Resolution;
+import com.amazon.ask.model.slu.entityresolution.Resolutions;
+import com.amazon.ask.model.slu.entityresolution.Status;
+import com.amazon.ask.model.slu.entityresolution.StatusCode;
+import com.amazon.ask.model.slu.entityresolution.Value;
+import com.amazon.ask.model.slu.entityresolution.ValueWrapper;
 import com.amazon.ask.model.ui.SsmlOutputSpeech;
+import jose.coronel.cl.battleship.game.board.Game;
+import jose.coronel.cl.battleship.game.board.Zone;
+import jose.coronel.cl.battleship.util.MindstormAlexaUtil;
 import jose.coronel.cl.battleship.handlers.ev3.directives.SendCommandDirective;
 import jose.coronel.cl.battleship.robot.LoggingRobotChannel;
 import jose.coronel.cl.battleship.robot.RobotChannels;
@@ -81,7 +90,57 @@ class SkillConversationTest {
         assertEquals("start_game", robot.getSent().get(0).getCommand());
     }
 
+    @Test
+    void spanishLevelSynonymUsesCanonicalValue() {
+        say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        String mode = say("es-ES", resolvedIntent("ModoDeJuegoIntent", "nivel", "fácil", "básico"));
+        assertTrue(mode.contains("Modo de juego básico configurado"), mode);
+        Game game = MindstormAlexaUtil.jsonToGame((String) session.get("jsonGame"));
+        assertEquals(Game.BASIC_MODE, game.getGameMode());
+    }
+
+    @Test
+    void sunkWithoutShipNameIsGuessed() {
+        say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        say("es-ES", intent("ModoDeJuegoIntent", Map.of("nivel", "medio")));
+        say("es-ES", intent("AtaqueJugadorIntent", Map.of("Fila", "A", "Columna", "uno")));
+        String sunk = say("es-ES", intent("DestruidoIntent", Map.of()));
+        assertTrue(sunk.contains("Solamente me queda hundir cuatro barcos"), sunk);
+    }
+
+    @Test
+    void playerHearsSunkShipNameInSpanish() {
+        say("es-ES", intent("ComenzarJuegoIntent", Map.of()));
+        say("es-ES", intent("ModoDeJuegoIntent", Map.of("nivel", "básico")));
+
+        // Find Alexa's destroyer (length 2) and shoot both cells
+        Game game = MindstormAlexaUtil.jsonToGame((String) session.get("jsonGame"));
+        Zone[][] zones = game.getBoardGameAlexa().getZones();
+        String last = "";
+        for (int row = 0; row < zones.length; row++) {
+            for (int column = 0; column < zones[row].length; column++) {
+                if (zones[row][column].isHasShip() && zones[row][column].getShipLength() == 2) {
+                    last = say("es-ES", intent("AtaqueJugadorIntent",
+                            Map.of("Fila", String.valueOf((char) ('A' + row)), "Columna", String.valueOf(column + 1))));
+                    say("es-ES", intent("AlAguaAlexaIntent", Map.of()));
+                }
+            }
+        }
+        assertTrue(last.contains("Tú has hundido un destructor"), last);
+    }
+
     // --- helpers ---
+
+    private static IntentRequest.Builder resolvedIntent(String name, String slotName, String spoken, String canonical) {
+        Slot slot = Slot.builder().withName(slotName).withValue(spoken)
+                .withResolutions(Resolutions.builder().addResolutionsPerAuthorityItem(Resolution.builder()
+                        .withAuthority("amzn1.er-authority.echo-sdk.test")
+                        .withStatus(Status.builder().withCode(StatusCode.ER_SUCCESS_MATCH).build())
+                        .addValuesItem(ValueWrapper.builder().withValue(Value.builder().withName(canonical).build()).build())
+                        .build()).build())
+                .build();
+        return IntentRequest.builder().withIntent(Intent.builder().withName(name).withSlots(Map.of(slotName, slot)).build());
+    }
 
     private static IntentRequest.Builder intent(String name, Map<String, String> slotValues) {
         Map<String, Slot> slots = new HashMap<>();

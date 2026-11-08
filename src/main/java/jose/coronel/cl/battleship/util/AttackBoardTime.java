@@ -19,17 +19,17 @@ public class AttackBoardTime {
     private static final int MAX_BREAK_TIME = 10000;
 
 
-    public static String getSsmlBreaksOnMillisecondsBeforeToAttack(int row, int column){
+    public static String getSsmlBreaksOnMillisecondsBeforeToAttack(int row, int column, String filler){
         int totalTime = getTotalMovementTime(row, column);
         log.info("Zone : [{} , {}] - Time before to attack : {}", row, column, totalTime);
-        return getTotalPauseInMilliseconds(totalTime, false);
+        return getTotalPauseInMilliseconds(totalTime, false, filler);
     }
 
 
-    public static String getSsmlBreaksOnMillisecondsAfterToAttack(int row, int column){
+    public static String getSsmlBreaksOnMillisecondsAfterToAttack(int row, int column, String filler){
         int totalTime = getTotalMovementTime(row, column) + SHOOT_TIME - RETURN_VELOCITY_TIME;
         log.info("Zone : [{} , {}] - Time after to attack : {}", row, column, totalTime);
-        return getTotalPauseInMilliseconds(totalTime, true);
+        return getTotalPauseInMilliseconds(totalTime, true, filler);
     }
 
 
@@ -44,7 +44,11 @@ public class AttackBoardTime {
     }
 
 
-    private static String getTotalPauseInMilliseconds(int totalPause, boolean withSound) {
+    /**
+     * Alexa rejects consecutive breaks longer than 10 s in total, so long waits are split into
+     * blocks of at most 10 s with a short spoken filler ("apuntando") between them.
+     */
+    private static String getTotalPauseInMilliseconds(int totalPause, boolean withSound, String filler) {
         if(withSound){
             totalPause = totalPause - SHOOT_SOUND_TIME;
         }
@@ -57,10 +61,15 @@ public class AttackBoardTime {
             int lessThanTen = totalPause % MAX_BREAK_TIME;
             log.info("greaterThanTen : {} - lessThanTen : {}", greaterThanTen, lessThanTen);
             for(int i = greaterThanTen; i > 0; i--){
-                int value = MAX_BREAK_TIME;
-                breaks.append("<break time=\"" + value + "ms\"/>");
+                if(breaks.length() > 0){
+                    breaks.append(" ").append(filler).append(" ");
+                }
+                breaks.append("<break time=\"" + MAX_BREAK_TIME + "ms\"/>");
             }
             if(lessThanTen > 0){
+                if(breaks.length() > 0){
+                    breaks.append(" ").append(filler).append(" ");
+                }
                 breaks.append("<break time=\"" + lessThanTen + "ms\"/>");
             }
             return breaks.toString();

@@ -30,7 +30,10 @@ public class GameModeHandler extends BattleshipHandler {
     @Override
     public Optional<Response> procesarHandle(HandlerInput handlerInput, IntentRequest intentRequest) {
         log.debug("Executing GameModeHandler");
-        String gameMode = MindstormAlexaUtil.getSlotFromIntentRequest(intentRequest, i18n(locale, "gameMode")).toUpperCase();
+        String gameMode = MindstormAlexaUtil.getResolvedSlotValue(intentRequest, i18n(locale, "gameMode"));
+        if (gameMode == null) {
+            gameMode = i18n(locale, "defaultGameMode");
+        }
         log.info("Game mode : {}", gameMode);
 
         String jsonGame = (String) MindstormAlexaUtil.getValueFromSession(handlerInput, "jsonGame");

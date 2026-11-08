@@ -29,7 +29,11 @@
           "name": "ComenzarJuegoIntent",
           "slots": [],
           "samples": [
-            "Comenzar juego"
+            "comenzar juego",
+            "iniciar juego",
+            "nuevo juego",
+            "empezar juego",
+            "empezar una nueva partida"
           ]
         },
         {
@@ -45,17 +49,11 @@
             }
           ],
           "samples": [
-            "{Fila} {Columna}"
-          ]
-        },
-        {
-          "name": "AtaqueAlexaIntent",
-          "slots": [],
-          "samples": [
-            "tu turno",
-            "tu juegas ahora",
-            "tu atacas",
-            "es tu turno de atacar"
+            "{Fila} {Columna}",
+            "ataco {Fila} {Columna}",
+            "disparo a {Fila} {Columna}",
+            "fila {Fila} columna {Columna}",
+            "ataque a {Fila} {Columna}"
           ]
         },
         {
@@ -63,23 +61,31 @@
           "slots": [],
           "samples": [
             "fallaste",
-            "al agua"
+            "al agua",
+            "agua",
+            "no le diste",
+            "disparo fallido"
           ]
         },
         {
           "name": "ImpactoAlexaIntent",
           "slots": [],
           "samples": [
-            "impacto"
+            "impacto",
+            "tocado",
+            "le diste",
+            "me diste",
+            "acertaste"
           ]
         },
         {
           "name": "AlexaGanaEljuegoIntent",
           "slots": [],
           "samples": [
-            "Tu ganas",
-            "Tu ganas el juego",
-            "Has destrudio el ultimo barco. Tu ganas el juego."
+            "tú ganas",
+            "tú ganas el juego",
+            "has destruido el último barco tú ganas el juego",
+            "ganaste"
           ]
         },
         {
@@ -87,6 +93,42 @@
           "slots": [],
           "samples": [
             "activar modo prueba"
+          ]
+        },
+        {
+          "name": "ModoDeJuegoIntent",
+          "slots": [
+            {
+              "name": "nivel",
+              "type": "TipoNivel"
+            }
+          ],
+          "samples": [
+            "modo de juego {nivel}",
+            "modo {nivel}",
+            "nivel {nivel}",
+            "{nivel}",
+            "quiero jugar en modo {nivel}",
+            "jugar en nivel {nivel}"
+          ]
+        },
+        {
+          "name": "DestruidoIntent",
+          "slots": [
+            {
+              "name": "barco",
+              "type": "TipoBarco"
+            }
+          ],
+          "samples": [
+            "destruido",
+            "hundido",
+            "hundiste mi {barco}",
+            "destruiste mi {barco}",
+            "{barco} destruido",
+            "{barco} hundido",
+            "hundiste un barco",
+            "me hundiste el {barco}"
           ]
         }
       ],
@@ -219,6 +261,75 @@
             {
               "name": {
                 "value": "A"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TipoNivel",
+          "values": [
+            {
+              "name": {
+                "value": "básico",
+                "synonyms": [
+                  "basico",
+                  "fácil",
+                  "facil",
+                  "principiante"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "medio",
+                "synonyms": [
+                  "intermedio",
+                  "normal"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "avanzado",
+                "synonyms": [
+                  "difícil",
+                  "dificil",
+                  "experto"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TipoBarco",
+          "values": [
+            {
+              "name": {
+                "value": "destructor"
+              }
+            },
+            {
+              "name": {
+                "value": "submarino"
+              }
+            },
+            {
+              "name": {
+                "value": "crucero"
+              }
+            },
+            {
+              "name": {
+                "value": "acorazado"
+              }
+            },
+            {
+              "name": {
+                "value": "portaaviones",
+                "synonyms": [
+                  "porta aviones",
+                  "portaviones"
+                ]
               }
             }
           ]

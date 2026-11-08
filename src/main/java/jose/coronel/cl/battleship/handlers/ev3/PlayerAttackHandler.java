@@ -94,21 +94,21 @@ public class PlayerAttackHandler extends BattleshipHandler {
             case 1:
                 randomSpeech = new Random().nextInt(4) + 1;
                 return i18n(locale, "impactAttack" + randomSpeech,
-                        AttackBoardTime.getSsmlBreaksOnMillisecondsBeforeToAttack(row, column - 1),
+                        AttackBoardTime.getSsmlBreaksOnMillisecondsBeforeToAttack(row, column - 1, i18n(locale, "aimingFiller")),
                         "<audio src=\"soundbank://soundlibrary/guns/cannons/cannons_02\"/>",
-                        AttackBoardTime.getSsmlBreaksOnMillisecondsAfterToAttack(row, column - 1));
+                        AttackBoardTime.getSsmlBreaksOnMillisecondsAfterToAttack(row, column - 1, i18n(locale, "aimingFiller")));
             case 2:
                 return i18n(locale, "impactDestroyed",
-                        AttackBoardTime.getSsmlBreaksOnMillisecondsBeforeToAttack(row, column - 1),
+                        AttackBoardTime.getSsmlBreaksOnMillisecondsBeforeToAttack(row, column - 1, i18n(locale, "aimingFiller")),
                         "<audio src=\"soundbank://soundlibrary/guns/cannons/cannons_02\"/>",
-                        payload.getShipDestroyed(),
-                        AttackBoardTime.getSsmlBreaksOnMillisecondsAfterToAttack(row, column - 1));
+                        i18n(locale, "shipName" + payload.getShipDestroyed().replace(" ", "")),
+                        AttackBoardTime.getSsmlBreaksOnMillisecondsAfterToAttack(row, column - 1, i18n(locale, "aimingFiller")));
             case 3:
                 randomSpeech = new Random().nextInt(4) + 1;
                 return i18n(locale, "impactFail" + randomSpeech,
-                        AttackBoardTime.getSsmlBreaksOnMillisecondsBeforeToAttack(row, column - 1),
+                        AttackBoardTime.getSsmlBreaksOnMillisecondsBeforeToAttack(row, column - 1, i18n(locale, "aimingFiller")),
                         "<audio src=\"soundbank://soundlibrary/guns/cannons/cannons_02\"/>",
-                        AttackBoardTime.getSsmlBreaksOnMillisecondsAfterToAttack(row, column - 1));
+                        AttackBoardTime.getSsmlBreaksOnMillisecondsAfterToAttack(row, column - 1, i18n(locale, "aimingFiller")));
             case 4:
                 return i18n(locale, "impactYouWin",
                         "<audio src=\"soundbank://soundlibrary/gameshow/gameshow_01\"/>");

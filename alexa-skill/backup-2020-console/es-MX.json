@@ -1,0 +1,292 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "intents": [
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": [
+            "cancelar"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "slots": [],
+          "name": "ComenzarJuegoIntent",
+          "samples": [
+            "Comenzar juego"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "Columna",
+              "type": "TipoColumna"
+            },
+            {
+              "name": "Fila",
+              "type": "TipoFila"
+            }
+          ],
+          "name": "AtaqueJugadorIntent",
+          "samples": [
+            "{Fila} {Columna}"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "AlAguaAlexaIntent",
+          "samples": [
+            "fallaste",
+            "al agua"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "ImpactoAlexaIntent",
+          "samples": [
+            "impacto"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "AlexaGanaEljuegoIntent",
+          "samples": [
+            "Tu ganas",
+            "Tu ganas el juego",
+            "Has destrudio el ultimo barco. Tu ganas el juego."
+          ]
+        },
+        {
+          "slots": [],
+          "name": "ModoTestIntent",
+          "samples": [
+            "activar modo prueba"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "barco",
+              "type": "TipoBarco"
+            }
+          ],
+          "name": "DestruidoIntent",
+          "samples": [
+            "tu has destrudio un {barco}"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "nivel",
+              "type": "TipoNivel"
+            }
+          ],
+          "name": "ModoDeJuegoIntent",
+          "samples": [
+            "modo de juego {nivel}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "synonyms": [
+                  "9"
+                ],
+                "value": "nueve"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "8"
+                ],
+                "value": "ocho"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "7"
+                ],
+                "value": "siete"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "6"
+                ],
+                "value": "seis"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "5"
+                ],
+                "value": "cinco"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "4"
+                ],
+                "value": "cuatro"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "3"
+                ],
+                "value": "tres"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "2"
+                ],
+                "value": "dos"
+              }
+            },
+            {
+              "name": {
+                "synonyms": [
+                  "1"
+                ],
+                "value": "uno"
+              }
+            }
+          ],
+          "name": "TipoColumna"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "Y"
+              }
+            },
+            {
+              "name": {
+                "value": "I"
+              }
+            },
+            {
+              "name": {
+                "value": "H"
+              }
+            },
+            {
+              "name": {
+                "value": "G"
+              }
+            },
+            {
+              "name": {
+                "value": "F"
+              }
+            },
+            {
+              "name": {
+                "value": "E"
+              }
+            },
+            {
+              "name": {
+                "value": "D"
+              }
+            },
+            {
+              "name": {
+                "value": "C"
+              }
+            },
+            {
+              "name": {
+                "value": "B"
+              }
+            },
+            {
+              "name": {
+                "value": "A"
+              }
+            }
+          ],
+          "name": "TipoFila"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "avanzado"
+              }
+            },
+            {
+              "name": {
+                "value": "medio"
+              }
+            },
+            {
+              "name": {
+                "value": "basico"
+              }
+            }
+          ],
+          "name": "TipoNivel"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "portaaviones"
+              }
+            },
+            {
+              "name": {
+                "value": "acorazado"
+              }
+            },
+            {
+              "name": {
+                "value": "crucero"
+              }
+            },
+            {
+              "name": {
+                "value": "submarino"
+              }
+            },
+            {
+              "name": {
+                "value": "destructor"
+              }
+            }
+          ],
+          "name": "TipoBarco"
+        }
+      ]
+    }
+  }
+}

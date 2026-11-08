@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "battleship game",
+      "invocationName": "robot battleship",
       "intents": [
         {
           "name": "AMAZON.FallbackIntent",
@@ -29,7 +29,11 @@
           "name": "StartGameIntent",
           "slots": [],
           "samples": [
-            "start game"
+            "start game",
+            "start a new game",
+            "new game",
+            "begin game",
+            "play a new game"
           ]
         },
         {
@@ -45,40 +49,42 @@
             }
           ],
           "samples": [
-            "{Row} {Column}"
-          ]
-        },
-        {
-          "name": "AlexaAttackIntent",
-          "slots": [],
-          "samples": [
-            "it is your turn to attack",
-            "you attack",
-            "you play now",
-            "your turn"
+            "{Row} {Column}",
+            "attack {Row} {Column}",
+            "fire at {Row} {Column}",
+            "row {Row} column {Column}",
+            "shoot {Row} {Column}"
           ]
         },
         {
           "name": "YouFailAlexaIntent",
           "slots": [],
           "samples": [
-            "you fail"
+            "you fail",
+            "you failed",
+            "miss",
+            "you missed",
+            "water"
           ]
         },
         {
           "name": "ImpactAlexaIntent",
           "slots": [],
           "samples": [
-            "impact"
+            "impact",
+            "hit",
+            "you hit",
+            "you hit my ship"
           ]
         },
         {
           "name": "AlexaWinsTheGameIntent",
           "slots": [],
           "samples": [
-            "You win",
-            "You win the game",
-            "You messed up the last ship. You win the game."
+            "you win",
+            "you win the game",
+            "you sunk the last ship you win the game",
+            "you won"
           ]
         },
         {
@@ -86,6 +92,41 @@
           "slots": [],
           "samples": [
             "enable test mode"
+          ]
+        },
+        {
+          "name": "GameModeIntent",
+          "slots": [
+            {
+              "name": "level",
+              "type": "LevelType"
+            }
+          ],
+          "samples": [
+            "game mode {level}",
+            "{level} mode",
+            "level {level}",
+            "{level}",
+            "play in {level} mode",
+            "I want to play {level}"
+          ]
+        },
+        {
+          "name": "DestroyedIntent",
+          "slots": [
+            {
+              "name": "ship",
+              "type": "ShipType"
+            }
+          ],
+          "samples": [
+            "destroyed",
+            "sunk",
+            "you sunk my {ship}",
+            "you sank my {ship}",
+            "you destroyed my {ship}",
+            "{ship} destroyed",
+            "you sunk a ship"
           ]
         }
       ],
@@ -191,6 +232,72 @@
             {
               "name": {
                 "value": "A"
+              }
+            }
+          ]
+        },
+        {
+          "name": "LevelType",
+          "values": [
+            {
+              "name": {
+                "value": "basic",
+                "synonyms": [
+                  "easy",
+                  "beginner"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "medium",
+                "synonyms": [
+                  "normal",
+                  "intermediate"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "advanced",
+                "synonyms": [
+                  "advance",
+                  "hard",
+                  "expert"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShipType",
+          "values": [
+            {
+              "name": {
+                "value": "destroyer"
+              }
+            },
+            {
+              "name": {
+                "value": "submarine"
+              }
+            },
+            {
+              "name": {
+                "value": "cruiser"
+              }
+            },
+            {
+              "name": {
+                "value": "battleship"
+              }
+            },
+            {
+              "name": {
+                "value": "aircraft carrier",
+                "synonyms": [
+                  "carrier"
+                ]
               }
             }
           ]

@@ -3,6 +3,9 @@ package jose.coronel.cl.battleship.util;
 import com.amazon.ask.attributes.AttributesManager;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.model.IntentRequest;
+import com.amazon.ask.model.Slot;
+import com.amazon.ask.model.slu.entityresolution.Resolution;
+import com.amazon.ask.model.slu.entityresolution.StatusCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jose.coronel.cl.battleship.game.board.Game;
@@ -53,6 +56,28 @@ public class MindstormAlexaUtil {
 
     public static String getSlotFromIntentRequest(IntentRequest intentRequest, String slotName){
         return intentRequest.getIntent().getSlots().get(slotName).getValue();
+    }
+
+    /**
+     * Returns the canonical slot value resolved by Alexa (so "fácil" becomes "básico"),
+     * the raw spoken value when there is no match, or null when the slot is empty.
+     */
+    public static String getResolvedSlotValue(IntentRequest intentRequest, String slotName){
+        Map<String, Slot> slots = intentRequest.getIntent().getSlots();
+        Slot slot = slots == null ? null : slots.get(slotName);
+        if (slot == null || slot.getValue() == null || slot.getValue().isBlank()) {
+            return null;
+        }
+        if (slot.getResolutions() != null && slot.getResolutions().getResolutionsPerAuthority() != null) {
+            for (Resolution resolution : slot.getResolutions().getResolutionsPerAuthority()) {
+                if (resolution.getStatus() != null
+                        && resolution.getStatus().getCode() == StatusCode.ER_SUCCESS_MATCH
+                        && resolution.getValues() != null && !resolution.getValues().isEmpty()) {
+                    return resolution.getValues().get(0).getValue().getName();
+                }
+            }
+        }
+        return slot.getValue();
     }
 
 }

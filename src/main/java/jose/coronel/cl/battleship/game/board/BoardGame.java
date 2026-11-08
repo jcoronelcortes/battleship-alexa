@@ -238,6 +238,41 @@ public class BoardGame {
     }
 
 
+    /**
+     * When the player only says "sunk" without naming the ship, guess it from the number of hits
+     * since the last sunk ship (plus the final shot). Returns an English type understood by
+     * updateZonesToDestroyedAndCleanImpacts.
+     */
+    public String guessSunkShipType() {
+        int length = impacts.size() + 1;
+        String[][] byLength = {
+                {"2", "DESTROYER"}, {"3", "SUBMARINE"}, {"3", "CRUISER"}, {"4", "BATTLESHIP"}, {"5", "AIRCRAFT CARRIER"}};
+        String closest = null;
+        int closestDistance = Integer.MAX_VALUE;
+        for (String[] ship : byLength) {
+            if (!isStillAfloat(ship[1])) {
+                continue;
+            }
+            int distance = Math.abs(Integer.parseInt(ship[0]) - length);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closest = ship[1];
+            }
+        }
+        return closest == null ? "" : closest;
+    }
+
+    private boolean isStillAfloat(String type) {
+        switch (type) {
+            case "DESTROYER": return destroyerNotDestroyed;
+            case "SUBMARINE": return submarineNotDestroyed;
+            case "CRUISER": return cruiserNotDestroyed;
+            case "BATTLESHIP": return battleshipNotDestroyed;
+            case "AIRCRAFT CARRIER": return aircraftCarrierNotDestroyed;
+            default: return false;
+        }
+    }
+
     public int numberOfPendingShipsToDestroy(){
         int total = 0;
         if(destroyerNotDestroyed){

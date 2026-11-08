@@ -1,0 +1,264 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "intents": [
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": [
+            "cancel"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "slots": [],
+          "name": "StartGameIntent",
+          "samples": [
+            "start game"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "Column",
+              "type": "ColumnType"
+            },
+            {
+              "name": "Row",
+              "type": "RowType"
+            }
+          ],
+          "name": "PlayerAttackIntent",
+          "samples": [
+            "{Row} {Column}"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "YouFailAlexaIntent",
+          "samples": [
+            "you fail"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "ImpactAlexaIntent",
+          "samples": [
+            "impact"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "AlexaWinsTheGameIntent",
+          "samples": [
+            "You win",
+            "You win the game",
+            "You messed up the last ship. You win the game."
+          ]
+        },
+        {
+          "slots": [],
+          "name": "TestModeIntent",
+          "samples": [
+            "enable test mode"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "ship",
+              "type": "ShipType"
+            }
+          ],
+          "name": "DestroyedIntent",
+          "samples": [
+            "you have destroyed a {ship}"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "level",
+              "type": "LevelType"
+            }
+          ],
+          "name": "GameModeIntent",
+          "samples": [
+            "{level} game mode"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "value": "nine"
+              }
+            },
+            {
+              "name": {
+                "value": "eight"
+              }
+            },
+            {
+              "name": {
+                "value": "seven"
+              }
+            },
+            {
+              "name": {
+                "value": "six"
+              }
+            },
+            {
+              "name": {
+                "value": "five"
+              }
+            },
+            {
+              "name": {
+                "value": "four"
+              }
+            },
+            {
+              "name": {
+                "value": "three"
+              }
+            },
+            {
+              "name": {
+                "value": "two"
+              }
+            },
+            {
+              "name": {
+                "value": "one"
+              }
+            }
+          ],
+          "name": "ColumnType"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "Y"
+              }
+            },
+            {
+              "name": {
+                "value": "I"
+              }
+            },
+            {
+              "name": {
+                "value": "H"
+              }
+            },
+            {
+              "name": {
+                "value": "G"
+              }
+            },
+            {
+              "name": {
+                "value": "F"
+              }
+            },
+            {
+              "name": {
+                "value": "E"
+              }
+            },
+            {
+              "name": {
+                "value": "D"
+              }
+            },
+            {
+              "name": {
+                "value": "C"
+              }
+            },
+            {
+              "name": {
+                "value": "B"
+              }
+            },
+            {
+              "name": {
+                "value": "A"
+              }
+            }
+          ],
+          "name": "RowType"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "advance"
+              }
+            },
+            {
+              "name": {
+                "value": "medium"
+              }
+            },
+            {
+              "name": {
+                "value": "basic"
+              }
+            }
+          ],
+          "name": "LevelType"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "aircraft carrier"
+              }
+            },
+            {
+              "name": {
+                "value": "battleship"
+              }
+            },
+            {
+              "name": {
+                "value": "cruiser"
+              }
+            },
+            {
+              "name": {
+                "value": "submarine"
+              }
+            },
+            {
+              "name": {
+                "value": "destroyer"
+              }
+            }
+          ],
+          "name": "ShipType"
+        }
+      ]
+    }
+  }
+}
