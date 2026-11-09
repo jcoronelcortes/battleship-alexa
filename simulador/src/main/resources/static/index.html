@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulador Batalla Naval</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>⚓ Simulador Batalla Naval</h1>
+  <div class="settings">
+    <label>Jugar contra
+      <select id="mode">
+        <option value="LOCAL">Skill local (sin AWS)</option>
+        <option value="LAMBDA">Lambda en AWS</option>
+      </select>
+    </label>
+    <span id="robotBox" hidden>
+      Robot virtual en AWS IoT: <b id="robotStatus">desconectado</b>
+      <button id="robotConnect" class="small">Conectar como robot</button>
+    </span>
+    <label><input type="checkbox" id="auto" checked> Responder a Alexa automáticamente</label>
+    <label><input type="checkbox" id="voice"> Voz de Alexa</label>
+  </div>
+</header>
+
+<main>
+  <section class="boards">
+    <div class="board-block">
+      <h2>Tablero de Alexa <small>haz clic en una casilla para atacar</small></h2>
+      <div id="alexaBoard" class="board"></div>
+      <label class="tiny"><input type="checkbox" id="reveal"> Mostrar los barcos de Alexa (trampa para pruebas)</label>
+    </div>
+    <div class="board-block">
+      <h2>Tu tablero <small>tus barcos y los disparos de Alexa</small></h2>
+      <div id="playerBoard" class="board"></div>
+      <button id="newFleet" class="small">Ubicar mis barcos al azar</button>
+    </div>
+  </section>
+
+  <section class="side">
+    <div class="panel">
+      <h2>Instrucciones a Alexa</h2>
+      <div class="buttons">
+        <button data-action="open">Alexa, abre batalla naval</button>
+        <button data-say="comenzar juego" data-intent="ComenzarJuegoIntent">Comenzar juego</button>
+      </div>
+      <div class="buttons">
+        <span>Nivel:</span>
+        <button data-say="modo de juego básico" data-intent="ModoDeJuegoIntent" data-slot="nivel=básico">Básico</button>
+        <button data-say="modo de juego medio" data-intent="ModoDeJuegoIntent" data-slot="nivel=medio">Medio</button>
+        <button data-say="modo de juego avanzado" data-intent="ModoDeJuegoIntent" data-slot="nivel=avanzado">Avanzado</button>
+      </div>
+      <div class="buttons">
+        <span>Responder:</span>
+        <button data-say="al agua" data-intent="AlAguaAlexaIntent">Al agua</button>
+        <button data-say="tocado" data-intent="ImpactoAlexaIntent">Tocado</button>
+        <select id="ship">
+          <option value="">hundido (sin nombre)</option>
+          <option>destructor</option><option>submarino</option><option>crucero</option>
+          <option>acorazado</option><option>portaaviones</option>
+        </select>
+        <button id="sunk">Hundido</button>
+      </div>
+      <div class="buttons">
+        <button data-say="ayuda" data-intent="AMAZON.HelpIntent">Ayuda</button>
+        <button data-say="activar modo prueba" data-intent="ModoTestIntent">Modo prueba</button>
+        <button data-say="tú ganas" data-intent="AlexaGanaEljuegoIntent">Rendirse</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Conversación</h2>
+      <div id="conversation" class="conversation"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Robot virtual <small id="robotCommand">esperando comandos</small></h2>
+      <div class="robot">
+        <div id="robotBoard" class="robot-board">
+          <div id="carriage" class="carriage"><div id="pusher" class="pusher"></div></div>
+        </div>
+        <div class="leds"><span id="ledLeft" class="led"></span><span id="ledRight" class="led"></span></div>
+      </div>
+      <label class="tiny">Velocidad
+        <select id="speed"><option value="1">real</option><option value="4" selected>rápida (×4)</option></select>
+      </label>
+      <pre id="robotLog" class="robot-log"></pre>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -149,6 +149,10 @@
                 <version>3.6.2</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <!-- Lambda jar with every dependency: target/alexa-batlla-naval-2.0.0-lambda.jar.
+                         The normal jar stays small so the web simulator can use it as a library. -->
+                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                    <shadedClassifierName>lambda</shadedClassifierName>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

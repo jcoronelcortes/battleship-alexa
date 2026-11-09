@@ -41,7 +41,7 @@ Juega a la clásica **Batalla Naval** contra Alexa. Un robot **LEGO MINDSTORMS E
 | Hundir barcos | No existía | "Hundiste mi submarino" (o solo "hundido") |
 | Idiomas | Inglés y español (es-MX) | Inglés (en-US) y español (es-US, es-MX y es-ES) |
 | Instalación | Unos 30 pasos manuales en las consolas web | Dos scripts: `deploy/deploy.sh` y `deploy/skill.sh` |
-| Pruebas | — | 34 tests automáticos y un simulador de partidas por línea de comandos |
+| Pruebas | — | 34 tests automáticos, un simulador de partidas por línea de comandos y un **simulador web** con robot virtual |
 
 ---
 
@@ -432,6 +432,18 @@ python3 deploy/simulate.py es-US "abre batalla naval" "comenzar juego" "modo de 
 ```
 
 Este comando juega contra el simulador real de Alexa y muestra qué *intent* entendió y qué respondió en cada frase. También puedes probar en tu Echo: "Alexa, abre batalla naval".
+
+#### Simulador web
+
+Para jugar con tableros en pantalla y ver un robot virtual que hace los mismos movimientos que el EV3:
+
+```bash
+./deploy/web.sh
+```
+
+Luego abre <http://localhost:8080>. Puedes jugar contra la skill local, sin AWS, o contra la Lambda real. En ese segundo modo, el simulador se puede conectar a AWS IoT **como si fuera el robot**. Ver la guía en [simulador/README.md](simulador/README.md).
+
+![Simulador web](docs/img/simulador.jpg)
 
 ### 6. Preparar el robot
 
