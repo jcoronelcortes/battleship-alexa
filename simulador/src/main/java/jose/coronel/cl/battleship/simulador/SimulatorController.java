@@ -63,6 +63,12 @@ public class SimulatorController {
         return simulator.state();
     }
 
+    @PostMapping("/flota")
+    public GameSimulator.State setFleet(@RequestBody List<PlayerFleet.Placement> placements) {
+        simulator.setFleet(placements);
+        return simulator.state();
+    }
+
     @PostMapping("/flota/nueva")
     public GameSimulator.State newFleet() {
         simulator.newFleet();
@@ -84,6 +90,12 @@ public class SimulatorController {
     public GameSimulator.State disconnectRobot() {
         iotRobot.disconnect();
         return simulator.state();
+    }
+
+    /** Invalid fleet or a move that is not allowed now: the message is shown to the player. */
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    public ResponseEntity<Map<String, String>> badRequest(RuntimeException e) {
+        return ResponseEntity.badRequest().body(Map.of("error", String.valueOf(e.getMessage())));
     }
 
     @ExceptionHandler(RuntimeException.class)

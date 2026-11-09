@@ -74,6 +74,13 @@
             <version>1.34.1</version>
         </dependency>
 
+        <!-- Vue 3 para la página (servido localmente desde /webjars, sin internet) -->
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>vue</artifactId>
+            <version>3.5.44</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>

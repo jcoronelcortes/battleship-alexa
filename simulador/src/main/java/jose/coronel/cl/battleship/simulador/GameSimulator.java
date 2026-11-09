@@ -38,6 +38,7 @@ public class GameSimulator {
     /** Everything the page draws. Board cells: 0 not attacked, 1 hit, 2 water, 3 sunk ship. */
     public record State(Mode mode, String robot, boolean sessionOpen, boolean autoAnswer, Integer gameMode,
                         int[][] alexaBoard, boolean[][] alexaShips, int[][] playerShots, int[][] playerFleet,
+                        List<PlayerFleet.Placement> ships, boolean fleetLocked,
                         Shot pendingShot, List<Line> conversation) {
     }
 
@@ -102,7 +103,37 @@ public class GameSimulator {
     }
 
     public synchronized void newFleet() {
+        checkFleetCanMove();
         fleet = PlayerFleet.random(random);
+    }
+
+    /** Ships placed by hand on the page. */
+    public synchronized void setFleet(List<PlayerFleet.Placement> placements) {
+        checkFleetCanMove();
+        fleet = PlayerFleet.of(placements);
+        conversation.add(new Line("Simulador", "Flota ubicada. ¡A jugar!"));
+    }
+
+    private void checkFleetCanMove() {
+        if (fleetLocked()) {
+            throw new IllegalStateException("Alexa ya disparó: no puedes mover tus barcos en esta partida. "
+                    + "Comienza un juego nuevo para ubicarlos de nuevo.");
+        }
+    }
+
+    /** Once Alexa has shot at the player's board, moving the ships would be cheating. */
+    private boolean fleetLocked() {
+        if (!sessionOpen) {
+            return false;
+        }
+        for (boolean[] row : attackedByAlexa()) {
+            for (boolean shot : row) {
+                if (shot) {
+                    return true;
+                }
+            }
+        }
+        return pendingShot() != null;
     }
 
     // ---------- talking to the skill ----------
@@ -215,7 +246,7 @@ public class GameSimulator {
         }
         return new State(mode, mode == Mode.LOCAL ? "local" : iotRobot.status(), sessionOpen, autoAnswer,
                 game == null ? null : game.getGameMode(), alexaBoard, alexaShips, playerShots, fleet.cells(),
-                pendingShot(), List.copyOf(conversation));
+                fleet.placements(), fleetLocked(), pendingShot(), List.copyOf(conversation));
     }
 
     private Game currentGame() {

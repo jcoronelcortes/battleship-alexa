@@ -29,27 +29,43 @@ En el modo **Lambda en AWS**, *Conectar como robot* conecta el simulador a AWS I
 
 ## Cómo se juega
 
-1. **Alexa, abre batalla naval**, luego **Comenzar juego** y elige el nivel.
-2. **Ataca** haciendo clic en una casilla del *Tablero de Alexa*.
-3. Alexa contraataca. Su disparo parpadea en amarillo en *Tu tablero*.
-4. Respóndele con **Al agua**, **Tocado** o **Hundido** (puedes elegir qué barco hundió). Si marcas *Responder a Alexa automáticamente*, el simulador responde solo según dónde están tus barcos.
+1. **Ubica tus barcos** (ver abajo), o deja los que el simulador ubicó al azar.
+2. Pulsa **▶ Nueva partida**: el simulador abre la skill ("Alexa, abre batalla naval") y dice "comenzar juego". Luego elige el nivel en la barra superior: **básico**, **medio** o **avanzado**.
+3. **Ataca** haciendo clic en una casilla de la *Flota de Alexa*.
+4. Alexa contraataca y su disparo parpadea en *Tu flota*. Respóndele con **💧 Al agua**, **💥 Tocado** o **🔥 Hundido** (eligiendo qué barco hundió). Si activas *Respuesta automática*, el simulador responde solo según dónde están tus barcos.
 
-Otras opciones:
-- **Ubicar mis barcos al azar:** cambia la posición de tu flota (los barcos en amarillo).
+La barra superior siempre indica de quién es el turno y qué hacer.
+
+### Ubicar tus barcos
+
+![Ubicando la flota](../docs/img/simulador-flota.jpg)
+
+1. Pulsa **✎ Ubicar mis barcos**.
+2. Elige un barco en el astillero (debajo de tu tablero).
+3. Mueve el mouse sobre tu tablero: la vista previa se ve **verde** si el barco cabe y **roja** si se sale del tablero o choca con otro.
+4. **Gira** el barco con la tecla <kbd>R</kbd>, con el clic derecho o con el botón *↻*.
+5. **Haz clic** para dejarlo. El astillero pasa solo al siguiente barco.
+6. Para **mover** un barco ya ubicado, haz clic sobre él: se levanta y lo puedes dejar en otro lugar.
+7. Cuando estén los 5, pulsa **✓ Listo**.
+
+*🎲 Al azar* ubica los 5 barcos por ti y *Limpiar* los saca todos. Los barcos se pueden mover hasta que Alexa dispare por primera vez; después quedan bloqueados hasta la próxima partida.
+
+### Otras opciones
+
 - **Mostrar los barcos de Alexa:** trampa para pruebas; los marca con un borde amarillo.
-- **Voz de Alexa:** lee las respuestas con la voz del navegador.
-- **Velocidad del robot:** *real* usa los mismos tiempos que el EV3 (700 ms por casilla); *rápida* va 4 veces más rápido.
+- **Voz:** lee las respuestas de Alexa con la voz del navegador.
+- **Velocidad del robot:** *real* usa los mismos tiempos que el EV3 (700 ms por casilla); *×4* va 4 veces más rápido.
 
-## Colores
+## Colores y efectos
 
-| Color | Significado |
+| En pantalla | Significado |
 |---|---|
-| Azul | Casilla sin atacar (mar) |
-| Gris con punto | Agua |
-| Rojo con ✕ | Impacto |
-| Rojo oscuro con ✕ | Barco hundido (en tu tablero) |
-| Amarillo | Tus barcos |
-| Amarillo parpadeando | Disparo de Alexa que todavía no respondes |
+| Mar azul con olas | Casilla sin atacar |
+| Salpicadura blanca | Agua |
+| Explosión roja con ✕ | Impacto |
+| Rojo oscuro con ✕ / barco gris oscuro | Barco hundido |
+| Recuadro amarillo parpadeando | Disparo de Alexa que todavía no respondes |
+| Barcos de colores | Tu flota, con los colores Duplo sugeridos: destructor amarillo, submarino naranja, crucero verde, acorazado rojo oscuro y portaaviones gris |
 
 ## Cómo funciona
 
@@ -66,7 +82,8 @@ flowchart LR
 - `GameSimulator` arma los pedidos de Alexa (`LaunchRequest` e `IntentRequest` con sus slots), guarda los atributos de sesión entre turnos y lee la partida (`jsonGame`) para dibujar los tableros.
 - `LocalSkillGateway` ejecuta la skill dentro del simulador; `LambdaSkillGateway` invoca la Lambda con tus credenciales de AWS.
 - `IotRobot` es el robot virtual en AWS IoT.
-- La página (`src/main/resources/static`) consulta los comandos del robot cada 400 ms y los anima en el mismo orden que `motion.py`: fila, columna, empuje y vuelta a la posición inicial.
+- `PlayerFleet` guarda tu flota y valida los barcos que ubicas a mano: que no se salgan del tablero, que no se superpongan y que estén los 5.
+- La página (`src/main/resources/static`) está hecha con **Vue 3**, incluido como WebJar en el `pom.xml`, así que funciona sin internet y sin herramientas de build. Consulta los comandos del robot cada 400 ms y los anima en el mismo orden que `motion.py`: fila, columna, empuje y vuelta a la posición inicial.
 
 Las respuestas de Alexa se envían directamente como *intents*. Este simulador no prueba el reconocimiento de voz; para eso está `deploy/simulate.py`, que usa el simulador oficial de Alexa.
 
@@ -76,11 +93,10 @@ Las respuestas de Alexa se envían directamente como *intents*. Este simulador n
 mvn -f simulador/pom.xml test
 ```
 
-Juegan partidas contra la skill local, incluida una completa hasta que el jugador gana, y verifican las respuestas automáticas y los comandos que recibe el robot.
+Son 12 tests. Juegan partidas contra la skill local (incluida una completa hasta que el jugador gana), verifican las respuestas automáticas y los comandos que recibe el robot, y comprueban la validación de la flota: barcos fuera del tablero, superpuestos, incompletos, y el bloqueo después del primer disparo de Alexa.
 
 ## Próximas mejoras
 
-- Ubicar los barcos a mano, con clics.
 - Modo "Alexa completa", usando el simulador oficial de Alexa para probar también el reconocimiento de frases.
 - Jugar en inglés.
 - Varias partidas a la vez, una por pestaña.

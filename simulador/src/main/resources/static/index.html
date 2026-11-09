@@ -3,93 +3,152 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Simulador Batalla Naval</title>
+  <title>Batalla Naval · Simulador</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="/webjars/vue/3.5.44/dist/vue.global.prod.js"></script>
 </head>
 <body>
-<header>
-  <h1>⚓ Simulador Batalla Naval</h1>
-  <div class="settings">
-    <label>Jugar contra
-      <select id="mode">
-        <option value="LOCAL">Skill local (sin AWS)</option>
-        <option value="LAMBDA">Lambda en AWS</option>
-      </select>
-    </label>
-    <span id="robotBox" hidden>
-      Robot virtual en AWS IoT: <b id="robotStatus">desconectado</b>
-      <button id="robotConnect" class="small">Conectar como robot</button>
-    </span>
-    <label><input type="checkbox" id="auto" checked> Responder a Alexa automáticamente</label>
-    <label><input type="checkbox" id="voice"> Voz de Alexa</label>
+<div id="app" v-cloak>
+
+  <header class="topbar">
+    <div class="brand">⚓ <span>Batalla Naval</span> <small>simulador</small></div>
+    <div class="segmented" role="group" aria-label="Jugar contra">
+      <button :class="{on: state.mode === 'LOCAL'}" @click="setMode('LOCAL')">Skill local</button>
+      <button :class="{on: state.mode === 'LAMBDA'}" @click="setMode('LAMBDA')">Lambda en AWS</button>
+    </div>
+    <div v-if="state.mode === 'LAMBDA'" class="pill" :class="robotPillClass">
+      Robot AWS IoT: {{ state.robot }}
+      <button class="link" @click="toggleRobot">{{ state.robot === 'desconectado' ? 'conectar' : 'desconectar' }}</button>
+    </div>
+    <div class="toggles">
+      <label><input type="checkbox" :checked="state.autoAnswer" @change="setAuto($event.target.checked)"> Respuesta automática</label>
+      <label><input type="checkbox" v-model="voice"> Voz</label>
+    </div>
+  </header>
+
+  <div class="banner" :class="phase.kind">
+    <span class="banner-icon">{{ phase.icon }}</span>
+    <span>{{ phase.text }}</span>
+    <span class="spacer"></span>
+    <button v-if="!state.sessionOpen" class="primary" :disabled="busy" @click="openAndStart">▶ Nueva partida</button>
+    <template v-else-if="needsLevel">
+      <span class="muted">Nivel:</span>
+      <button v-for="l in levels" :key="l" class="chip" :disabled="busy" @click="setLevel(l)">{{ l }}</button>
+    </template>
   </div>
-</header>
 
-<main>
-  <section class="boards">
-    <div class="board-block">
-      <h2>Tablero de Alexa <small>haz clic en una casilla para atacar</small></h2>
-      <div id="alexaBoard" class="board"></div>
-      <label class="tiny"><input type="checkbox" id="reveal"> Mostrar los barcos de Alexa (trampa para pruebas)</label>
-    </div>
-    <div class="board-block">
-      <h2>Tu tablero <small>tus barcos y los disparos de Alexa</small></h2>
-      <div id="playerBoard" class="board"></div>
-      <button id="newFleet" class="small">Ubicar mis barcos al azar</button>
-    </div>
-  </section>
+  <main class="layout">
+    <!-- Tablero de Alexa -->
+    <section class="card">
+      <h2>Flota de Alexa <small>{{ myTurn ? 'elige dónde disparar' : '' }}</small></h2>
+      <div class="board enemy" :class="{armed: myTurn}">
+        <div class="corner"></div>
+        <div v-for="c in 9" :key="'ec' + c" class="label">{{ c }}</div>
+        <template v-for="r in 9" :key="'er' + r">
+          <div class="label">{{ ROWS[r - 1] }}</div>
+          <button v-for="c in 9" :key="'e' + r + c" class="cell"
+                  :class="enemyCellClass(r - 1, c - 1)"
+                  :title="ROWS[r - 1] + c"
+                  :disabled="!myTurn || state.alexaBoard[r - 1][c - 1] !== 0"
+                  @click="attack(r - 1, c - 1)"></button>
+        </template>
+      </div>
+      <label class="small-check"><input type="checkbox" v-model="reveal"> Mostrar los barcos de Alexa (trampa para pruebas)</label>
+    </section>
 
-  <section class="side">
-    <div class="panel">
-      <h2>Instrucciones a Alexa</h2>
-      <div class="buttons">
-        <button data-action="open">Alexa, abre batalla naval</button>
-        <button data-say="comenzar juego" data-intent="ComenzarJuegoIntent">Comenzar juego</button>
-      </div>
-      <div class="buttons">
-        <span>Nivel:</span>
-        <button data-say="modo de juego básico" data-intent="ModoDeJuegoIntent" data-slot="nivel=básico">Básico</button>
-        <button data-say="modo de juego medio" data-intent="ModoDeJuegoIntent" data-slot="nivel=medio">Medio</button>
-        <button data-say="modo de juego avanzado" data-intent="ModoDeJuegoIntent" data-slot="nivel=avanzado">Avanzado</button>
-      </div>
-      <div class="buttons">
-        <span>Responder:</span>
-        <button data-say="al agua" data-intent="AlAguaAlexaIntent">Al agua</button>
-        <button data-say="tocado" data-intent="ImpactoAlexaIntent">Tocado</button>
-        <select id="ship">
-          <option value="">hundido (sin nombre)</option>
-          <option>destructor</option><option>submarino</option><option>crucero</option>
-          <option>acorazado</option><option>portaaviones</option>
-        </select>
-        <button id="sunk">Hundido</button>
-      </div>
-      <div class="buttons">
-        <button data-say="ayuda" data-intent="AMAZON.HelpIntent">Ayuda</button>
-        <button data-say="activar modo prueba" data-intent="ModoTestIntent">Modo prueba</button>
-        <button data-say="tú ganas" data-intent="AlexaGanaEljuegoIntent">Rendirse</button>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Conversación</h2>
-      <div id="conversation" class="conversation"></div>
-    </div>
-
-    <div class="panel">
-      <h2>Robot virtual <small id="robotCommand">esperando comandos</small></h2>
-      <div class="robot">
-        <div id="robotBoard" class="robot-board">
-          <div id="carriage" class="carriage"><div id="pusher" class="pusher"></div></div>
+    <!-- Tablero del jugador -->
+    <section class="card">
+      <h2>Tu flota
+        <small v-if="editing">haz clic para ubicar · <kbd>R</kbd> o clic derecho para girar</small>
+        <small v-else-if="state.fleetLocked">bloqueada: Alexa ya disparó</small>
+      </h2>
+      <div class="board own" @mouseleave="hover = null" @contextmenu.prevent="rotate">
+        <div class="corner" style="grid-row: 1; grid-column: 1"></div>
+        <div v-for="c in 9" :key="'oc' + c" class="label" :style="{gridRow: 1, gridColumn: c + 1}">{{ c }}</div>
+        <template v-for="r in 9" :key="'or' + r">
+          <div class="label" :style="{gridRow: r + 1, gridColumn: 1}">{{ ROWS[r - 1] }}</div>
+          <button v-for="c in 9" :key="'o' + r + c" class="cell"
+                  :class="ownCellClass(r - 1, c - 1)"
+                  :style="{gridRow: r + 1, gridColumn: c + 1}"
+                  :title="ROWS[r - 1] + c"
+                  @mouseenter="hover = {row: r - 1, column: c - 1}"
+                  @click="clickOwnCell(r - 1, c - 1)"></button>
+        </template>
+        <div v-for="ship in shownShips" :key="'ship' + ship.ship" class="ship"
+             :class="['ship-' + ship.ship, {vertical: !ship.horizontal, sunk: isSunk(ship)}]"
+             :style="shipStyle(ship)">
+          <span v-for="i in LENGTHS[ship.ship]" :key="i" class="porthole"></span>
         </div>
-        <div class="leds"><span id="ledLeft" class="led"></span><span id="ledRight" class="led"></span></div>
+        <div v-for="mark in ownMarks" :key="'m' + mark.row + mark.column" class="mark"
+             :class="mark.kind" :style="{gridRow: mark.row + 2, gridColumn: mark.column + 2}"></div>
       </div>
-      <label class="tiny">Velocidad
-        <select id="speed"><option value="1">real</option><option value="4" selected>rápida (×4)</option></select>
-      </label>
-      <pre id="robotLog" class="robot-log"></pre>
-    </div>
-  </section>
-</main>
+
+      <div v-if="editing" class="shipyard">
+        <button v-for="(name, i) in NAMES" :key="name" class="yard-ship"
+                :class="{selected: selected === i, placed: draftHas(i)}" @click="selectShip(i)">
+          <span class="yard-hull" :class="'ship-' + i"><span v-for="n in LENGTHS[i]" :key="n"></span></span>
+          <span>{{ name }} <small>({{ LENGTHS[i] }})</small></span>
+        </button>
+        <div class="yard-actions">
+          <button class="chip" @click="rotate">↻ {{ horizontal ? 'Horizontal' : 'Vertical' }}</button>
+          <button class="chip" @click="randomDraft">🎲 Al azar</button>
+          <button class="chip" @click="clearDraft">Limpiar</button>
+          <button class="primary" :disabled="draft.length < 5 || busy" @click="saveFleet">✓ Listo ({{ draft.length }}/5)</button>
+          <button class="link" @click="cancelEdit">cancelar</button>
+        </div>
+      </div>
+      <button v-else-if="!state.fleetLocked" class="chip edit-btn" @click="startEdit">✎ Ubicar mis barcos</button>
+    </section>
+
+    <!-- Alexa -->
+    <section class="card alexa">
+      <h2>Alexa</h2>
+      <div class="chat" ref="chat">
+        <div v-for="(line, i) in state.conversation" :key="i" class="bubble" :class="whoClass(line.who)">
+          <span v-if="line.who === 'Alexa'" class="avatar"></span>{{ line.text }}
+        </div>
+      </div>
+      <div class="answer" v-if="state.pendingShot && !state.autoAnswer">
+        <span>Alexa disparó a <b>{{ cellName(state.pendingShot) }}</b>:</span>
+        <button class="chip" @click="sayIntent('al agua', 'AlAguaAlexaIntent')">💧 Al agua</button>
+        <button class="chip" @click="sayIntent('tocado', 'ImpactoAlexaIntent')">💥 Tocado</button>
+        <select v-model="sunkShip"><option value="">hundido…</option><option v-for="n in NAMES" :key="n">{{ n }}</option></select>
+        <button class="chip" :disabled="!sunkShip" @click="sayIntent('hundiste mi ' + sunkShip, 'DestruidoIntent', {barco: sunkShip})">🔥 Hundido</button>
+      </div>
+      <div class="extras">
+        <button class="link" @click="sayIntent('ayuda', 'AMAZON.HelpIntent')">ayuda</button>
+        <button class="link" @click="sayIntent('activar modo prueba', 'ModoTestIntent')">modo prueba</button>
+        <button class="link" @click="sayIntent('tú ganas', 'AlexaGanaEljuegoIntent')">rendirse</button>
+      </div>
+    </section>
+
+    <!-- Robot virtual -->
+    <section class="card robot-card">
+      <h2>Robot virtual <small>{{ robot.command || 'esperando comandos' }}</small></h2>
+      <div class="robot">
+        <div class="robot-board">
+          <div class="carriage" :style="{top: robot.row * 25 + 'px', transitionDuration: robot.rowMs + 'ms'}">
+            <div class="pusher" :class="{push: robot.pushing}"
+                 :style="{left: robot.column * 25 + 2 + 'px', transitionDuration: robot.columnMs + 'ms'}"></div>
+          </div>
+        </div>
+        <div class="ev3">
+          <div class="ev3-screen">EV3</div>
+          <div class="leds"><span class="led" :class="robot.led"></span><span class="led" :class="robot.led"></span></div>
+          <label class="small-check">Velocidad
+            <select v-model.number="speed"><option :value="1">real</option><option :value="4">×4</option></select>
+          </label>
+        </div>
+      </div>
+      <details>
+        <summary>Comandos recibidos ({{ robotLog.length }})</summary>
+        <pre class="robot-log">{{ robotLog.join('\n') }}</pre>
+      </details>
+    </section>
+  </main>
+
+  <div class="toast" v-if="toast" @click="toast = ''">{{ toast }}</div>
+</div>
 
 <script src="app.js"></script>
 </body>
