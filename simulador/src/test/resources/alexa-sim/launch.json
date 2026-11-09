@@ -1,0 +1,103 @@
+{
+ "id": "e9d17aba-fe97-4fd4-b175-0894a0f11fdd",
+ "status": "SUCCESSFUL",
+ "result": {
+  "alexaExecutionInfo": {
+   "alexaResponses": [
+    {
+     "type": "Speech",
+     "content": {
+      "caption": "<Short audio>"
+     }
+    },
+    {
+     "type": "Speech",
+     "content": {
+      "caption": " Batalla naval. Un juego interactivo que integra Amazon Alexa y Lego EV3. Tu debes decir iniciar juego, para preparar el tablero y iniciar un nuevo juego."
+     }
+    }
+   ],
+   "consideredIntents": [
+    {
+     "name": "<LaunchRequest>"
+    }
+   ]
+  },
+  "skillExecutionInfo": {
+   "invocations": [
+    {
+     "invocationRequest": {
+      "endpoint": "arn:aws:lambda:us-east-1:<AWS_ACCOUNT_ID>:function:battleship-alexa:live",
+      "body": {
+       "version": "1.0",
+       "session": {
+        "new": true,
+        "sessionId": "<oculto>",
+        "application": {
+         "applicationId": "amzn1.ask.skill.fe055462-2886-4526-9e85-44dd8cb8c5d4"
+        },
+        "attributes": {},
+        "user": {
+         "userId": "<oculto>"
+        },
+        "affiliatedResources": []
+       },
+       "context": {
+        "Extensions": {
+         "available": {
+          "aplext:backstack:10": {}
+         }
+        },
+        "System": {
+         "application": {
+          "applicationId": "amzn1.ask.skill.fe055462-2886-4526-9e85-44dd8cb8c5d4"
+         },
+         "user": {
+          "userId": "<oculto>"
+         },
+         "device": {
+          "deviceId": "<oculto>",
+          "supportedInterfaces": {}
+         },
+         "apiEndpoint": "https://api.amazonalexa.com",
+         "apiAccessToken": "<oculto>"
+        }
+       },
+       "request": {
+        "type": "LaunchRequest",
+        "requestId": "<oculto>",
+        "locale": "es-US",
+        "timestamp": "2026-11-09T18:39:26Z",
+        "shouldLinkResultBeReturned": false
+       }
+      }
+     },
+     "invocationResponse": {
+      "body": {
+       "version": "1.0",
+       "response": {
+        "outputSpeech": {
+         "type": "SSML",
+         "ssml": "<speak><audio src=\"soundbank://soundlibrary/nature/amzn_sfx_ocean_wave_surf_01\"/> Batalla naval. Un juego interactivo que integra Amazon Alexa y Lego EV3. Tu debes decir iniciar juego, para preparar el tablero y iniciar un nuevo juego.</speak>"
+        },
+        "reprompt": {
+         "outputSpeech": {
+          "type": "SSML",
+          "ssml": "<speak>Continuamos jugando?</speak>"
+         }
+        },
+        "shouldEndSession": false,
+        "type": "_DEFAULT_RESPONSE"
+       },
+       "sessionAttributes": {},
+       "userAgent": "ask-java/2.86.0 Java/21.0.13"
+      }
+     },
+     "metrics": {
+      "skillExecutionTimeInMilliseconds": 91
+     }
+    }
+   ]
+  }
+ }
+}

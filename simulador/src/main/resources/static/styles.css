@@ -176,6 +176,13 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .bubble.error { align-self: stretch; background: #fde8e8; color: #9b1c1c; }
 .avatar { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px;
   background: radial-gradient(circle, #e7f6fb 0 30%, #00caff 32% 60%, #0077b6 62%); }
+.understood { display: block; margin-top: 4px; font-size: .72rem; opacity: .85; font-family: ui-monospace, monospace; }
+.understood::before { content: "🎧 "; }
+.understood.unknown { color: #ffe08a; }
+.say-box { display: flex; gap: 6px; margin-top: 12px; }
+.say-box input { flex: 1; padding: 8px 12px; border-radius: 10px; border: 1px solid #c9d6ee; font: inherit; font-size: .9rem; }
+.mic { border: 1px solid #c9d6ee; background: white; border-radius: 10px; padding: 0 10px; font-size: 1.1rem; }
+.mic.listening { background: #fee2e2; border-color: #ef4444; animation: target .7s infinite alternate; }
 .answer { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; padding: 10px; border-radius: 10px; background: #fff7d6; font-size: .9rem; }
 .answer select { border-radius: 999px; padding: 4px 8px; border: 1px solid #c9d6ee; }
 .extras { margin-top: 8px; text-align: right; }

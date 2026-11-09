@@ -50,6 +50,10 @@ createApp({
     const sunkShip = ref("");
     const chat = ref(null);
     const levelChosen = ref(false);
+    const text = ref("");
+    const listening = ref(false);
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const canListen = !!Recognition;
 
     // ---------- servidor ----------
 
@@ -89,6 +93,27 @@ createApp({
 
     const attack = (r, c) => sayIntent(`${ROWS[r]} ${NUMBERS[c]}`, "AtaqueJugadorIntent", { Fila: ROWS[r], Columna: String(c + 1) });
     const setMode = (mode) => mode !== state.mode && act("POST", "/modo?valor=" + mode);
+
+    // Modo "Alexa completa": frases libres, escritas o habladas
+    async function sendText() {
+      const phrase = text.value.trim();
+      if (!phrase) return;
+      text.value = "";
+      if (/abre batalla naval/i.test(phrase)) levelChosen.value = false;
+      if (/modo|nivel|básico|basico|medio|avanzado|fácil|difícil/i.test(phrase)) levelChosen.value = true;
+      await act("POST", "/frase", { texto: phrase });
+    }
+
+    function listen() {
+      const recognition = new Recognition();
+      recognition.lang = "es-US";
+      recognition.interimResults = false;
+      listening.value = true;
+      recognition.onresult = (e) => { text.value = e.results[0][0].transcript; sendText(); };
+      recognition.onerror = (e) => { toast.value = "No pude usar el micrófono: " + e.error; };
+      recognition.onend = () => (listening.value = false);
+      recognition.start();
+    }
     const setAuto = (on) => act("POST", "/respuesta-automatica?activa=" + on);
     const toggleRobot = () => act("POST", state.robot === "desconectado" ? "/robot/conectar" : "/robot/desconectar");
 
@@ -329,12 +354,13 @@ createApp({
       apply(await api("GET", "/estado"));
       pollRobot();
       setInterval(async () => {
-        if (!busy.value && state.mode === "LAMBDA") apply(await api("GET", "/estado"));
+        if (!busy.value && state.mode !== "LOCAL") apply(await api("GET", "/estado"));
       }, 3000);
     });
 
     return {
       ROWS, NAMES, LENGTHS, levels: LEVELS, state, busy, toast, voice, reveal, speed, sunkShip, chat,
+      text, listening, canListen, sendText, listen,
       phase, myTurn, needsLevel, openAndStart, setLevel, attack, sayIntent, setMode, setAuto, toggleRobot,
       enemyCellClass, ownCellClass, cellName, whoClass, robotPillClass,
       editing, draft, selected, horizontal, hover, startEdit, cancelEdit, draftHas, selectShip, rotate,

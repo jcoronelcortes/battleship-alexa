@@ -9,6 +9,7 @@ import jose.coronel.cl.battleship.game.board.Game;
 import jose.coronel.cl.battleship.game.board.Zone;
 import jose.coronel.cl.battleship.robot.RobotChannels;
 import jose.coronel.cl.battleship.session.GameSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +28,14 @@ import java.util.UUID;
 @Service
 public class GameSimulator {
 
-    public enum Mode { LOCAL, LAMBDA }
+    /** LOCAL: skill inside the simulator. LAMBDA: deployed Lambda. ALEXA: Alexa's simulator (real language understanding). */
+    public enum Mode { LOCAL, LAMBDA, ALEXA }
 
-    public record Line(String who, String text) {
+    /** A line of the conversation. {@code detail}: what Alexa understood (ALEXA mode). */
+    public record Line(String who, String text, String detail) {
+        public Line(String who, String text) {
+            this(who, text, null);
+        }
     }
 
     public record Shot(int row, int column) {
@@ -50,6 +56,7 @@ public class GameSimulator {
     private final String lambdaFunction;
     private final IotRobot iotRobot;
     private final Random random = new Random();
+    private AlexaSimulatorGateway alexa;
 
     private Mode mode = Mode.LOCAL;
     private SkillGateway gateway;
@@ -59,11 +66,19 @@ public class GameSimulator {
     private PlayerFleet fleet;
     private final List<Line> conversation = new ArrayList<>();
 
+    public GameSimulator(String skillId, String locale, String region, String lambdaFunction,
+                         RobotEvents robotEvents, IotRobot iotRobot) {
+        this(skillId, locale, region, lambdaFunction, "ask", robotEvents, iotRobot);
+    }
+
+    @Autowired
     public GameSimulator(@Value("${simulador.skill-id}") String skillId,
                          @Value("${simulador.locale}") String locale,
                          @Value("${simulador.aws-region}") String region,
                          @Value("${simulador.lambda-function}") String lambdaFunction,
+                         @Value("${simulador.ask-cli:ask}") String askCli,
                          RobotEvents robotEvents, IotRobot iotRobot) {
+        this.alexa = new AlexaSimulatorGateway(AlexaSimulatorGateway.askCli(askCli), skillId, locale, 700);
         this.skillId = skillId;
         this.locale = locale;
         this.region = region;
@@ -87,15 +102,19 @@ public class GameSimulator {
         if (newMode == mode) {
             return;
         }
-        gateway = newMode == Mode.LOCAL ? new LocalSkillGateway() : new LambdaSkillGateway(region, lambdaFunction);
         if (newMode == Mode.LOCAL) {
+            gateway = new LocalSkillGateway();
             iotRobot.disconnect();
+        } else if (newMode == Mode.LAMBDA) {
+            gateway = new LambdaSkillGateway(region, lambdaFunction);
         }
         mode = newMode;
         resetSession();
-        conversation.add(new Line("Simulador", newMode == Mode.LOCAL
-                ? "Jugando contra la skill local (sin AWS)."
-                : "Jugando contra la Lambda en AWS (" + lambdaFunction + ")."));
+        conversation.add(new Line("Simulador", switch (newMode) {
+            case LOCAL -> "Jugando contra la skill local (sin AWS).";
+            case LAMBDA -> "Jugando contra la Lambda en AWS (" + lambdaFunction + ").";
+            case ALEXA -> "Alexa completa: tus frases pasan por el reconocimiento de lenguaje de Alexa (unos segundos por turno).";
+        }));
     }
 
     public synchronized void setAutoAnswer(boolean active) {
@@ -141,16 +160,77 @@ public class GameSimulator {
     /** "Alexa, abre batalla naval". */
     public synchronized State open() {
         resetSession();
-        conversation.add(new Line("Tú", "Alexa, abre batalla naval"));
-        send(request("LaunchRequest", null, Map.of(), true));
+        if (mode == Mode.ALEXA) {
+            alexaTurn("abre batalla naval", true);
+        } else {
+            conversation.add(new Line("Tú", "Alexa, abre batalla naval"));
+            send(request("LaunchRequest", null, Map.of(), true));
+        }
         return state();
     }
 
+    /**
+     * The player says something. In ALEXA mode only the words are used (Alexa decides the intent);
+     * in the other modes the intent and slots are sent directly.
+     */
     public synchronized State say(String spoken, String intent, Map<String, String> slots) {
+        if (mode == Mode.ALEXA) {
+            if (!sessionOpen) {
+                alexaTurn("abre batalla naval", true);
+            }
+            alexaTurn(spoken, false);
+            return state();
+        }
         boolean isNew = !sessionOpen;
         conversation.add(new Line("Tú", spoken));
         send(request("IntentRequest", intent, slots, isNew));
         return state();
+    }
+
+    /** Free text typed or spoken by the player (ALEXA mode). */
+    public synchronized State sayText(String text) {
+        if (mode != Mode.ALEXA) {
+            throw new IllegalStateException("Escribir frases libres solo funciona en el modo «Alexa completa».");
+        }
+        return say(text, null, Map.of());
+    }
+
+    private void alexaTurn(String text, boolean newSession) {
+        AlexaSimulatorGateway.Result result;
+        try {
+            result = alexa.say(text, newSession);
+        } catch (RuntimeException e) {
+            conversation.add(new Line("Tú", text));
+            conversation.add(new Line("Error", e.getMessage()));
+            return;
+        }
+        conversation.add(new Line("Tú", text, understood(result)));
+        if (result.skillResponse() != null) {
+            handleResponse(result.skillResponse());
+        } else {
+            conversation.add(new Line(result.intent() == null ? "Error" : "Alexa",
+                    result.alexaSays() == null ? "(sin respuesta)" : speechText(result.alexaSays())));
+            if (result.intent() == null) {
+                sessionOpen = false;
+            }
+        }
+    }
+
+    private static String understood(AlexaSimulatorGateway.Result result) {
+        if (result.intent() == null) {
+            return "Alexa no entendió la frase";
+        }
+        StringBuilder text = new StringBuilder("entendió: ").append(result.intent());
+        if (!result.slots().isEmpty()) {
+            text.append(" · ");
+            result.slots().forEach((name, value) -> text.append(name).append('=').append(value).append(' '));
+        }
+        return text.toString().trim();
+    }
+
+    /** Tests replace Alexa's simulator with a fake. */
+    void useAlexaSimulator(AlexaSimulatorGateway gateway) {
+        this.alexa = gateway;
     }
 
     /** Answers Alexa's pending shot from the player's fleet ("al agua", "tocado" or "hundiste mi …"). */
@@ -171,6 +251,11 @@ public class GameSimulator {
             conversation.add(new Line("Error", e.getMessage()));
             return;
         }
+        handleResponse(responseJson);
+    }
+
+    /** Reads a skill response: what Alexa says, whether the session goes on and the game state. */
+    private void handleResponse(String responseJson) {
         try {
             JsonNode response = JSON.readTree(responseJson);
             String ssml = response.path("response").path("outputSpeech").path("ssml").asText("");

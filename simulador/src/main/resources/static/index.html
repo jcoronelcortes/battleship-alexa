@@ -15,8 +15,9 @@
     <div class="segmented" role="group" aria-label="Jugar contra">
       <button :class="{on: state.mode === 'LOCAL'}" @click="setMode('LOCAL')">Skill local</button>
       <button :class="{on: state.mode === 'LAMBDA'}" @click="setMode('LAMBDA')">Lambda en AWS</button>
+      <button :class="{on: state.mode === 'ALEXA'}" @click="setMode('ALEXA')" title="Tus frases pasan por el reconocimiento de lenguaje real de Alexa">Alexa completa</button>
     </div>
-    <div v-if="state.mode === 'LAMBDA'" class="pill" :class="robotPillClass">
+    <div v-if="state.mode !== 'LOCAL'" class="pill" :class="robotPillClass">
       Robot AWS IoT: {{ state.robot }}
       <button class="link" @click="toggleRobot">{{ state.robot === 'desconectado' ? 'conectar' : 'desconectar' }}</button>
     </div>
@@ -106,7 +107,9 @@
       <div class="chat" ref="chat">
         <div v-for="(line, i) in state.conversation" :key="i" class="bubble" :class="whoClass(line.who)">
           <span v-if="line.who === 'Alexa'" class="avatar"></span>{{ line.text }}
+          <span v-if="line.detail" class="understood" :class="{unknown: line.detail.startsWith('Alexa no')}">{{ line.detail }}</span>
         </div>
+        <div v-if="busy && state.mode === 'ALEXA'" class="bubble system">Alexa está escuchando…</div>
       </div>
       <div class="answer" v-if="state.pendingShot && !state.autoAnswer">
         <span>Alexa disparó a <b>{{ cellName(state.pendingShot) }}</b>:</span>
@@ -115,6 +118,11 @@
         <select v-model="sunkShip"><option value="">hundido…</option><option v-for="n in NAMES" :key="n">{{ n }}</option></select>
         <button class="chip" :disabled="!sunkShip" @click="sayIntent('hundiste mi ' + sunkShip, 'DestruidoIntent', {barco: sunkShip})">🔥 Hundido</button>
       </div>
+      <form v-if="state.mode === 'ALEXA'" class="say-box" @submit.prevent="sendText">
+        <input v-model="text" :disabled="busy" placeholder="Escribe lo que le dirías a Alexa, por ejemplo «disparo a C cinco»">
+        <button v-if="canListen" type="button" class="mic" :class="{listening}" :disabled="busy" @click="listen" title="Hablar">🎤</button>
+        <button class="primary" :disabled="busy || !text.trim()">Decir</button>
+      </form>
       <div class="extras">
         <button class="link" @click="sayIntent('ayuda', 'AMAZON.HelpIntent')">ayuda</button>
         <button class="link" @click="sayIntent('activar modo prueba', 'ModoTestIntent')">modo prueba</button>

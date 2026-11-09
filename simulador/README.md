@@ -1,6 +1,6 @@
 # Simulador web de Batalla Naval
 
-Página web para jugar contra la skill de Alexa **sin el Echo** y, si quieres, **sin el robot**: el simulador hace de robot virtual y muestra en pantalla cada movimiento que haría el EV3.
+Página web para jugar contra la skill de Alexa **sin el Echo** y, si quieres, **sin el robot**: el simulador hace de robot virtual y muestra en pantalla cada movimiento que haría el EV3. En el modo *Alexa completa* también prueba si Alexa entiende tus frases.
 
 ![Simulador web](../docs/img/simulador.jpg)
 
@@ -18,14 +18,27 @@ Requisitos: Java 21 y Maven. Para los modos con AWS necesitas además una sesió
 
 ## Modos de juego
 
-| Modo | Contra qué juegas | El robot virtual recibe los comandos… |
-|---|---|---|
-| **Skill local (sin AWS)** | El código Java de la skill, ejecutándose dentro del simulador | Directamente, sin internet |
-| **Lambda en AWS** | La Lambda real `battleship-alexa:live`, con el mismo JSON que enviaría Alexa | Desde **AWS IoT**, si pulsas *Conectar como robot* |
+| Modo | Contra qué juegas | Qué prueba | El robot virtual recibe los comandos… |
+|---|---|---|---|
+| **Skill local** | El código Java de la skill, dentro del simulador | La lógica del juego, sin internet | Directamente |
+| **Lambda en AWS** | La Lambda real `battleship-alexa:live`, con el mismo JSON que enviaría Alexa | La Lambda desplegada y AWS IoT | Desde **AWS IoT**, si pulsas *conectar* |
+| **Alexa completa** | El **simulador oficial de Alexa**: tus frases pasan por su reconocimiento de lenguaje y luego llegan a la Lambda | Además, que Alexa **entienda tus frases** (intents y slots) | Desde **AWS IoT**, si pulsas *conectar* |
 
-En el modo **Lambda en AWS**, *Conectar como robot* conecta el simulador a AWS IoT con los **mismos certificados y el mismo tópico que el EV3** (`battleship/ev3`). El robot virtual recibe exactamente lo que recibiría el robot real, así que puedes probar toda la cadena (Lambda → AWS IoT → robot) antes de armar el robot.
+En los modos con AWS, *conectar* une el simulador a AWS IoT con los **mismos certificados y el mismo tópico que el EV3** (`battleship/ev3`). El robot virtual recibe exactamente lo que recibiría el robot real, así que puedes probar toda la cadena antes de armar el robot.
 
 > El EV3 y el robot virtual usan el mismo identificador de cliente en AWS IoT, así que no pueden estar conectados a la vez. Si el EV3 está encendido, desconecta el robot virtual.
+
+### Modo «Alexa completa»
+
+![Modo Alexa completa](../docs/img/simulador-alexa.jpg)
+
+En este modo el simulador no arma los intents: envía **lo que dices como texto** al simulador de Alexa (`ask smapi simulate-skill`), igual que si le hablaras a un Echo. Los clics y los botones también se convierten en frases ("C cinco", "tocado", "hundiste mi submarino").
+
+- Escribe cualquier frase en el cuadro *Escribe lo que le dirías a Alexa*. También puedes probar formas distintas de decir lo mismo, por ejemplo "disparo a la fila B columna tres".
+- 🎤 **Micrófono:** si tu navegador lo permite (Chrome o Edge), habla y la frase se envía sola.
+- Bajo cada mensaje tuyo aparece **lo que entendió Alexa** (🎧), con el intent y los slots, por ejemplo `entendió: AtaqueJugadorIntent · Fila=B Columna=3`. Si una frase cae en `AMAZON.FallbackIntent`, Alexa no la reconoció como una instrucción del juego: es una buena candidata para agregarla como frase de ejemplo en `alexa-skill/Battleship_es.json`.
+
+Requisitos: la ASK CLI configurada (`ask configure`) y la skill habilitada para pruebas (lo hace `deploy/skill.sh`). Cada turno tarda unos 5 segundos, porque pasa por los servidores de Alexa.
 
 ## Cómo se juega
 
@@ -80,12 +93,12 @@ flowchart LR
 ```
 
 - `GameSimulator` arma los pedidos de Alexa (`LaunchRequest` e `IntentRequest` con sus slots), guarda los atributos de sesión entre turnos y lee la partida (`jsonGame`) para dibujar los tableros.
-- `LocalSkillGateway` ejecuta la skill dentro del simulador; `LambdaSkillGateway` invoca la Lambda con tus credenciales de AWS.
+- `LocalSkillGateway` ejecuta la skill dentro del simulador; `LambdaSkillGateway` invoca la Lambda con tus credenciales de AWS; `AlexaSimulatorGateway` envía frases al simulador de Alexa con la ASK CLI y lee lo que entendió.
 - `IotRobot` es el robot virtual en AWS IoT.
 - `PlayerFleet` guarda tu flota y valida los barcos que ubicas a mano: que no se salgan del tablero, que no se superpongan y que estén los 5.
 - La página (`src/main/resources/static`) está hecha con **Vue 3**, incluido como WebJar en el `pom.xml`, así que funciona sin internet y sin herramientas de build. Consulta los comandos del robot cada 400 ms y los anima en el mismo orden que `motion.py`: fila, columna, empuje y vuelta a la posición inicial.
 
-Las respuestas de Alexa se envían directamente como *intents*. Este simulador no prueba el reconocimiento de voz; para eso está `deploy/simulate.py`, que usa el simulador oficial de Alexa.
+En los modos *Skill local* y *Lambda en AWS* las instrucciones se envían directamente como *intents*; el reconocimiento de lenguaje solo se prueba en el modo *Alexa completa*.
 
 ## Tests
 
@@ -93,10 +106,9 @@ Las respuestas de Alexa se envían directamente como *intents*. Este simulador n
 mvn -f simulador/pom.xml test
 ```
 
-Son 12 tests. Juegan partidas contra la skill local (incluida una completa hasta que el jugador gana), verifican las respuestas automáticas y los comandos que recibe el robot, y comprueban la validación de la flota: barcos fuera del tablero, superpuestos, incompletos, y el bloqueo después del primer disparo de Alexa.
+Son 17 tests. Juegan partidas contra la skill local (incluida una completa hasta que el jugador gana), verifican las respuestas automáticas y los comandos que recibe el robot, y comprueban la validación de la flota: barcos fuera del tablero, superpuestos, incompletos, y el bloqueo después del primer disparo de Alexa. El modo *Alexa completa* se prueba con respuestas reales capturadas del simulador de Alexa (`src/test/resources/alexa-sim`, sin tokens ni identificadores de cuenta), así que los tests no necesitan internet.
 
 ## Próximas mejoras
 
-- Modo "Alexa completa", usando el simulador oficial de Alexa para probar también el reconocimiento de frases.
 - Jugar en inglés.
 - Varias partidas a la vez, una por pestaña.

@@ -441,7 +441,7 @@ Para jugar con tableros en pantalla y ver un robot virtual que hace los mismos m
 ./deploy/web.sh
 ```
 
-Luego abre <http://localhost:8080>. Puedes ubicar tus barcos con clics (con vista previa y giro con la tecla R) y jugar contra la skill local, sin AWS, o contra la Lambda real. En ese segundo modo, el simulador se puede conectar a AWS IoT **como si fuera el robot**. Ver la guía en [simulador/README.md](simulador/README.md).
+Luego abre <http://localhost:8080>. Puedes ubicar tus barcos con clics (con vista previa y giro con la tecla R) y jugar contra la skill local (sin AWS), contra la Lambda real o en modo **Alexa completa**, donde escribes o dices frases libres y ves qué intent entendió Alexa. En los modos con AWS, el simulador se puede conectar a AWS IoT **como si fuera el robot**. Ver la guía en [simulador/README.md](simulador/README.md).
 
 ![Simulador web](docs/img/simulador.jpg)
 

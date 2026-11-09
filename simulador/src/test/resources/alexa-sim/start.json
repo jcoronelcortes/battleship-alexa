@@ -1,0 +1,117 @@
+{
+ "id": "eeaf0a16-e163-4ff2-bfa0-f80c5db11868",
+ "status": "SUCCESSFUL",
+ "result": {
+  "alexaExecutionInfo": {
+   "alexaResponses": [
+    {
+     "type": "Speech",
+     "content": {
+      "caption": "<Short audio>"
+     }
+    },
+    {
+     "type": "Speech",
+     "content": {
+      "caption": " Voy a preparar el tablero de juego para la batalla y ubicar mis barcos en posiciones estrategicas.  Mi flota ya esta lista para la batalla. Cual sera el nivel de dificultad para jugar?. Tu debes decir  modo de juego basico  modo de juego medio  modo de juego avanzado  para definir el nivel de dificultad del juego."
+     }
+    }
+   ],
+   "consideredIntents": [
+    {
+     "name": "ComenzarJuegoIntent",
+     "confirmationStatus": "NONE",
+     "slots": {}
+    },
+    {
+     "name": "<IntentForDifferentSkill>"
+    }
+   ]
+  },
+  "skillExecutionInfo": {
+   "invocations": [
+    {
+     "invocationRequest": {
+      "endpoint": "arn:aws:lambda:us-east-1:<AWS_ACCOUNT_ID>:function:battleship-alexa:live",
+      "body": {
+       "version": "1.0",
+       "session": {
+        "new": false,
+        "sessionId": "<oculto>",
+        "application": {
+         "applicationId": "amzn1.ask.skill.fe055462-2886-4526-9e85-44dd8cb8c5d4"
+        },
+        "attributes": {},
+        "user": {
+         "userId": "<oculto>"
+        },
+        "affiliatedResources": []
+       },
+       "context": {
+        "Extensions": {
+         "available": {
+          "aplext:backstack:10": {}
+         }
+        },
+        "Advertising": {
+         "advertisingId": "00000000-0000-0000-0000-<AWS_ACCOUNT_ID>",
+         "limitAdTracking": true
+        },
+        "System": {
+         "application": {
+          "applicationId": "amzn1.ask.skill.fe055462-2886-4526-9e85-44dd8cb8c5d4"
+         },
+         "user": {
+          "userId": "<oculto>"
+         },
+         "device": {
+          "deviceId": "<oculto>",
+          "supportedInterfaces": {}
+         },
+         "apiEndpoint": "https://api.amazonalexa.com",
+         "apiAccessToken": "<oculto>"
+        }
+       },
+       "request": {
+        "type": "IntentRequest",
+        "requestId": "<oculto>",
+        "locale": "es-US",
+        "timestamp": "2026-11-09T18:39:38Z",
+        "intent": {
+         "name": "ComenzarJuegoIntent",
+         "confirmationStatus": "NONE"
+        }
+       }
+      }
+     },
+     "invocationResponse": {
+      "body": {
+       "version": "1.0",
+       "response": {
+        "outputSpeech": {
+         "type": "SSML",
+         "ssml": "<speak><audio src=\"soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_intro_01\"/> Voy a preparar el tablero de juego para la batalla y ubicar mis barcos en posiciones estrategicas. <break time=\"2s\"/> Mi flota ya esta lista para la batalla. Cual sera el nivel de dificultad para jugar?. Tu debes decir <break time=\"500ms\"/> modo de juego basico <break time=\"500ms\"/> modo de juego medio <break time=\"500ms\"/> modo de juego avanzado <break time=\"500ms\"/> para definir el nivel de dificultad del juego.</speak>"
+        },
+        "reprompt": {
+         "outputSpeech": {
+          "type": "SSML",
+          "ssml": "<speak>Continuamos jugando?</speak>"
+         }
+        },
+        "shouldEndSession": false,
+        "type": "_DEFAULT_RESPONSE"
+       },
+       "sessionAttributes": {
+        "jsonGame": "{\"ships\":[{\"identifier\":0,\"row\":0,\"column\":5,\"length\":2,\"direction\":1,\"typeOfShip\":\"Destroyer\",\"lifePoints\":2},{\"identifier\":1,\"row\":0,\"column\":8,\"length\":3,\"direction\":1,\"typeOfShip\":\"Submarine\",\"lifePoints\":3},{\"identifier\":2,\"row\":2,\"column\":0,\"length\":3,\"direction\":0,\"typeOfShip\":\"Cruiser\",\"lifePoints\":3},{\"identifier\":3,\"row\":5,\"column\":3,\"length\":4,\"direction\":0,\"typeOfShip\":\"Battleship\",\"lifePoints\":4},{\"identifier\":4,\"row\":3,\"column\":2,\"length\":5,\"direction\":0,\"typeOfShip\":\"Aircraft Carrier\",\"lifePoints\":5}],\"boardGameAlexa\":{\"zones\":[[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":true,\"status\":0,\"shipLength\":2},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":1,\"hasShip\":true,\"status\":0,\"shipLength\":3}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":true,\"status\":0,\"shipLength\":2},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":1,\"hasShip\":true,\"status\":0,\"shipLength\":3}],[{\"identifyShip\":2,\"hasShip\":true,\"status\":0,\"shipLength\":3},{\"identifyShip\":2,\"hasShip\":true,\"status\":0,\"shipLength\":3},{\"identifyShip\":2,\"hasShip\":true,\"status\":0,\"shipLength\":3},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":1,\"hasShip\":true,\"status\":0,\"shipLength\":3}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":4,\"hasShip\":true,\"status\":0,\"shipLength\":5},{\"identifyShip\":4,\"hasShip\":true,\"status\":0,\"shipLength\":5},{\"identifyShip\":4,\"hasShip\":true,\"status\":0,\"shipLength\":5},{\"identifyShip\":4,\"hasShip\":true,\"status\":0,\"shipLength\":5},{\"identifyShip\":4,\"hasShip\":true,\"status\":0,\"shipLength\":5},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":3,\"hasShip\":true,\"status\":0,\"shipLength\":4},{\"identifyShip\":3,\"hasShip\":true,\"status\":0,\"shipLength\":4},{\"identifyShip\":3,\"hasShip\":true,\"status\":0,\"shipLength\":4},{\"identifyShip\":3,\"hasShip\":true,\"status\":0,\"shipLength\":4},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}]],\"points\":0,\"nextAttack\":[],\"impacts\":[],\"impact\":{\"column\":-1,\"row\":-1},\"sunkShips\":[]},\"boardGamePlayer\":{\"zones\":[[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}],[{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1},{\"identifyShip\":0,\"hasShip\":false,\"status\":0,\"shipLength\":-1}]],\"points\":0,\"nextAttack\":[],\"impacts\":[],\"impact\":{\"column\":-1,\"row\":-1},\"sunkShips\":[]},\"gameMode\":0}"
+       },
+       "userAgent": "ask-java/2.86.0 Java/21.0.13"
+      }
+     },
+     "metrics": {
+      "skillExecutionTimeInMilliseconds": 2182
+     }
+    }
+   ]
+  }
+ }
+}
