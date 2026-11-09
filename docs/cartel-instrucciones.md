@@ -9,7 +9,7 @@
 | 🟨 Amarillo | Destructor | 2 | 1 |
 | 🟧 Naranja | Submarino | 3 | 1 |
 | 🟩 Verde | Crucero | 3 | 1 |
-| 🟥 Rojo oscuro | Acorazado | 4 | 1 |
+| 🟫 Café | Acorazado | 4 | 1 |
 | ⬜ Gris | Portaaviones | 5 | 1 |
 
 Los barcos van en horizontal o en vertical y no se pueden superponer.

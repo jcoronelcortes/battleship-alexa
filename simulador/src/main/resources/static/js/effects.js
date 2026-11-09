@@ -17,9 +17,8 @@ window.Fx = (() => {
   function centerOf(board, row, column) {
     const cell = board.querySelector(`.cell[data-r="${row}"][data-c="${column}"]`);
     if (!cell) return null;
-    const b = board.getBoundingClientRect();
-    const c = cell.getBoundingClientRect();
-    return { x: c.left - b.left + c.width / 2, y: c.top - b.top + c.height / 2, size: c.width };
+    // Medidas sin transformar: así el efecto cae en la casilla aunque el tablero esté inclinado en 3D
+    return { x: cell.offsetLeft + cell.offsetWidth / 2, y: cell.offsetTop + cell.offsetHeight / 2, size: cell.offsetWidth };
   }
 
   function spawn(fx, className, x, y, style = {}) {
@@ -111,6 +110,20 @@ window.Fx = (() => {
     }
   }
 
+  /** The robot pushes the blue Duplo block out of the wall: it pops toward you and falls. */
+  function brick(board, row, column) {
+    const p = centerOf(board, row, column);
+    if (!p || reduced()) return;
+    const fx = layer(board);
+    const b = spawn(fx, "cell fx-brick", p.x, p.y, { width: p.size + "px", height: p.size + "px" });
+    const fall = rand(-25, 25);
+    b.animate([
+      { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
+      { transform: "translate(-50%, -62%) scale(1.45)", opacity: 1, offset: 0.3 },
+      { transform: `translate(calc(-50% + ${fall}px), 140px) scale(1.7) rotate(${fall * 1.6}deg)`, opacity: 0 },
+    ], { duration: 900, easing: "cubic-bezier(.3,.1,.6,1)" }).finished.then(() => b.remove());
+  }
+
   /** Bubbles rising from a sunk ship's cells. */
   function bubbles(board, cells) {
     if (reduced()) return;
@@ -150,5 +163,5 @@ window.Fx = (() => {
     setTimeout(() => fx.remove(), seconds * 1000 + 2600);
   }
 
-  return { shot, splash, explosion, bubbles, confetti };
+  return { shot, splash, explosion, brick, bubbles, confetti };
 })();

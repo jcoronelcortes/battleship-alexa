@@ -76,6 +76,15 @@ La barra superior siempre indica de quién es el turno y qué hacer.
 
 ### Gráficos
 - **Logotipo propio** (`static/img/logo.svg`) y su ícono en la pestaña del navegador.
+- **Aspecto del robot real de LEGO:** casillas como bloques Duplo de 2x2, impactos con la pieza de llamas, rótulos en tarjetas blancas escritas en azul, marco de vigas Technic y el cartel "BATTLESHIP".
+- **🧱 Vista robot** (por defecto): el tablero de Alexa va de pie, como la pared del robot, y el tuyo acostado delante en perspectiva. Al ubicar tus barcos el tablero se levanta para que sea fácil hacer clic. Con 🗂️ vuelves a la vista clásica, con los tableros lado a lado.
+- **El carro del robot:** en la vista robot tu disparo no es un proyectil. La viga gris sube o baja hasta la fila, el motor que empuja avanza hasta la columna (con los mismos tiempos que el robot real y la velocidad ×4 o real del panel del robot), empuja el bloque azul, el bloque salta hacia adelante y aparece el resultado. Alexa contraataca recién cuando el robot termina.
+- **Movimiento con la física del robot real:** los tiempos salen de `battleship-ev3/config.py` (140° por fila y 280° por columna a 400°/s, empuje de 350° de ida y vuelta, vuelta a casa al 40 % de velocidad, primero la columna y después la fila). La pared vibra mientras giran los motores, y los dos sensores táctiles (puertos 1 y 4) se sueltan cuando el carro se aleja y hacen clic al presionarse en I9.
+- **Ladrillo EV3 dibujado:** pantalla con la casilla que ataca el robot, botones con la luz de estado (verde = listo, naranja parpadeante = moviéndose, rojo = impacto, como en `robot.py`) y los cables a los puertos A, B, C, D, 1 y 4. Cada puerto se enciende mientras gira su motor o mientras su sensor táctil está presionado; pasa el mouse sobre un puerto para ver qué tiene conectado.
+- **Tus barcos como bloques Duplo:** en la vista robot cada casilla de tus barcos es un bloque Duplo del color del barco (amarillo, naranja, verde, café y gris), como en el tablero real. Cuando Alexa hunde uno, sus bloques se oscurecen.
+- **Cartel de instrucciones:** al lado de la pared de Alexa va un cartel con borde de ladrillos de colores, como el del robot real, con los barcos y las frases para decirle a Alexa. En pantallas angostas aparece arriba del cartel BATTLESHIP. La versión para imprimir está en [`docs/cartel-instrucciones.md`](../docs/cartel-instrucciones.md).
+- **La habitación y el plástico:** en la vista robot el mar se cambia por una pared clara y un piso de tablas de madera, como en las fotos del robot (en modo noche, con luz de lámpara). Al empujar un bloque suena el clic de plástico y el bloque que cae y rebota; al ubicar tus barcos suena el clic de un bloque que encaja.
+- **Bandeja de piezas:** al lado de tu tablero hay 17 bloques rojos y 17 llamas, una por cada casilla de barco. Cada impacto tuyo en la pared de Alexa gasta un bloque rojo y cada impacto de Alexa en tu tablero gasta una llama, justo cuando aparece el resultado. En pantallas angostas la bandeja va debajo del tablero.
 - **Fondo animado:** cielo, sol, olas en capas y una rosa de los vientos. Con 🌙 cambia a **modo noche**, con luna y estrellas.
 - **Cada disparo:** un proyectil vuela en arco hasta la casilla. Si es **agua**, salta una columna de agua con gotas; si es **impacto**, hay una explosión con chispas y **humo que queda** sobre la casilla. Cuando un barco se **hunde**, se inclina, se oscurece y suben burbujas.
 - **Radar:** mientras eliges dónde disparar, un barrido verde recorre la flota de Alexa.
@@ -116,12 +125,12 @@ En el menú 🔊 se ajustan el **volumen**, **silenciar todo**, el **mar de fond
 
 | En pantalla | Significado |
 |---|---|
-| Mar azul con olas | Casilla sin atacar |
-| Salpicadura blanca | Agua |
-| Explosión roja con ✕ | Impacto |
-| Rojo oscuro con ✕ / barco gris oscuro | Barco hundido |
+| Bloque Duplo azul | Casilla sin atacar |
+| Bloque celeste con un círculo | Agua |
+| Bloque rojo con la pieza de llamas | Impacto |
+| Bloque rojo oscuro con llamas / barco oscurecido | Barco hundido |
 | Recuadro amarillo parpadeando | Disparo de Alexa que todavía no respondes |
-| Barcos de colores | Tu flota, con los colores Duplo sugeridos: destructor amarillo, submarino naranja, crucero verde, acorazado rojo oscuro y portaaviones gris |
+| Barcos de colores | Tu flota, con los colores Duplo sugeridos: destructor amarillo, submarino naranja, crucero verde, acorazado café y portaaviones gris |
 
 ## Cómo funciona
 

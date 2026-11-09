@@ -126,6 +126,20 @@ window.Sfx = (() => {
     pop() {
       tone("sine", 700, 1200, 0.06, 0.1);
     },
+    /** LEGO plastic: a block snapping onto the studs (two short, bright clicks). */
+    brick(at = 0) {
+      filteredNoise("bandpass", 3200, 0.025, 0.55, at);
+      filteredNoise("bandpass", 4600, 0.02, 0.35, at + 0.03);
+      tone("triangle", 1900, 1500, 0.03, 0.06, at);
+    },
+    /** The pushed Duplo block falls: a dull knock, then clacks that bounce and fade. */
+    brickFall(at = 0) {
+      tone("sine", 160, 90, 0.12, 0.35, at);
+      [0, 0.17, 0.29, 0.37, 0.42].forEach((d, i) => {
+        const peak = 0.5 * Math.pow(0.6, i);
+        filteredNoise("bandpass", 2300 + Math.random() * 900, 0.035, peak, at + d);
+      });
+    },
   };
 
   /** Robot motors: a low hum while they turn. Returns a function that stops it. */

@@ -10,6 +10,26 @@ const LEVELS = ["básico", "medio", "avanzado"];
 const LEVEL_NAMES = { 0: "básico", 1: "medio", 2: "avanzado" };
 const RESULT_TEXT = { water: "agua", hit: "impacto", sunk: "¡hundido!", pending: "esperando respuesta" };
 const HOME = 8;
+// EV3 ports and what is plugged in each one (battleship-ev3/config.py)
+const EV3_PORTS = {
+  out: [
+    { id: "A", label: "↕ der.", title: "Puerto A: motor grande, sube y baja el carro (derecha)" },
+    { id: "B", label: "empuja", title: "Puerto B: motor mediano, empuja el bloque" },
+    { id: "C", label: "↔", title: "Puerto C: motor grande, mueve el empujador a la columna" },
+    { id: "D", label: "↕ izq.", title: "Puerto D: motor grande, sube y baja el carro (izquierda)" },
+  ],
+  in: [
+    { id: "1", label: "toque ↔", title: "Puerto 1: sensor táctil de la columna 9" },
+    { id: "2", label: "", title: "Puerto 2: libre" },
+    { id: "3", label: "", title: "Puerto 3: libre" },
+    { id: "4", label: "toque ↕", title: "Puerto 4: sensor táctil de la fila I" },
+  ],
+};
+// Same numbers as battleship-ev3/config.py: degrees per cell and motor speeds (degrees per second)
+const MOTION = {
+  rowDegrees: 140, columnDegrees: 280, pushDegrees: 350, speed: 400,
+  homeSpeed: 0.40 * 1050, // HOME_SPEED_PERCENT of the large motor's top speed
+};
 const FLIGHT_MS = 750;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const store = {
@@ -81,7 +101,7 @@ createApp({
       setTimeout(() => (toast.value = ""), 6000);
     }
 
-    // ---------- preferencias: sonido, voz, noche ----------
+    // ---------- preferencias: sonido, voz, noche, vista ----------
 
     const soundOpen = ref(false);
     const volume = ref(Sfx.settings.volume);
@@ -89,12 +109,14 @@ createApp({
     const ambientOn = ref(Sfx.settings.ambient);
     const voice = ref(store.get("batalla-naval-voz", false));
     const night = ref(store.get("batalla-naval-noche", false));
+    const robotView = ref(store.get("batalla-naval-vista-robot", true));
     const voiceName = ref(Voz.name);
     watch(volume, (v) => Sfx.setVolume(v));
     watch(muted, (m) => Sfx.setMuted(m));
     watch(ambientOn, (on) => Sfx.setAmbient(on));
     watch(voice, (v) => { store.set("batalla-naval-voz", v); voiceName.value = Voz.name; if (!v) Voz.stop(); });
     watch(night, (n) => { store.set("batalla-naval-noche", n); document.body.classList.toggle("night", n); }, { immediate: true });
+    watch(robotView, (on) => { store.set("batalla-naval-vista-robot", on); document.body.classList.toggle("robot-view", on); }, { immediate: true });
 
     function toggleFullscreen() {
       if (document.fullscreenElement) document.exitFullscreen();
@@ -117,7 +139,7 @@ createApp({
         gameMode: state.gameMode,
       };
       Object.assign(state, newState);
-      animateChanges(before);
+      return animateChanges(before);
     }
 
     async function act(method, path, body) {
@@ -125,11 +147,12 @@ createApp({
       busy.value = true;
       Sfx.unlock();
       try {
-        apply(await api(method, path, body));
+        let animation = apply(await api(method, path, body));
         while (state.autoAnswer && state.pendingShot && state.sessionOpen) {
-          // Let Alexa's shell land before answering (FLIGHT_MS + its start delay)
-          await sleep(2 * FLIGHT_MS + 1300);
-          apply(await api("POST", "/responder-auto"));
+          // Answer only after Alexa's shell has landed (and, in the robot view, after the robot pushed)
+          await animation;
+          await sleep(500);
+          animation = apply(await api("POST", "/responder-auto"));
         }
       } catch (e) {
         showError(e.message);
@@ -198,18 +221,20 @@ createApp({
     async function animateChanges(before) {
       const STATUS_KIND = { 1: "hit", 2: "water", 3: "sunk" };
       // Your shots on Alexa's board
+      const mine = [];
       for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
         const now = state.alexaBoard[r][c];
         if (now && !before.alexaBoard[r][c] && before.gameMode !== null) {
           const sunkNow = state.alexaFleet.filter((s) => s.sunk).length > before.alexaSunk;
-          playerShot(r, c, sunkNow ? "sunk" : STATUS_KIND[now]);
+          mine.push(playerShot(r, c, sunkNow ? "sunk" : STATUS_KIND[now]));
         }
       }
-      // Alexa fires at you
+      // Alexa fires at you (in the robot view, only after the robot has pushed your block)
       const p = state.pendingShot;
       if (p && (!before.pending || before.pending.row !== p.row || before.pending.column !== p.column)) {
         const key = `o${p.row}-${p.column}`;
         inFlight.add(key);
+        if (robotView.value) await Promise.all(mine);
         await sleep(FLIGHT_MS + 500);
         Sfx.cannon();
         Sfx.whistle(FLIGHT_MS / 1000);
@@ -227,7 +252,8 @@ createApp({
           if (row) row.result = kind;
         }
       }
-      // Game over
+      // Game over (after your last block has been pushed)
+      await Promise.all(mine);
       if (before.sessionOpen && !state.sessionOpen && ["win", "lose"].includes(phase.value.kind)) {
         await sleep(1600);
         finishGame(phase.value.kind);
@@ -238,8 +264,18 @@ createApp({
     async function playerShot(r, c, kind) {
       const key = `e${r}-${c}`;
       inFlight.add(key);
-      Sfx.whistle(FLIGHT_MS / 1000);
-      await Fx.shot(enemyBoard.value, r, c, "bottom");
+      if (robotView.value) {
+        // Like the real robot: the carriage drives to the cell and pushes the blue block out
+        await waitForPush(key, 14000 / speed.value + 3000);
+        Sfx.cannon();
+        Sfx.brick();
+        Sfx.brickFall(0.45);
+        Fx.brick(enemyBoard.value, r, c);
+        await sleep(350);
+      } else {
+        Sfx.whistle(FLIGHT_MS / 1000);
+        await Fx.shot(enemyBoard.value, r, c, "bottom");
+      }
       inFlight.delete(key);
       const ship = kind === "sunk" ? state.alexaFleet.find((s) => s.sunk && cellsOf(s).some(([rr, cc]) => rr === r && cc === c)) : null;
       impact(enemyBoard.value, r, c, kind, ship ? cellsOf(ship) : null);
@@ -275,6 +311,11 @@ createApp({
       if (!state.sessionOpen) return { kind: "idle", icon: "🎮", text: "Ubica tus barcos y empieza una partida." };
       if (!gameStarted.value) return { kind: "idle", icon: "🎮", text: "Di «comenzar juego» para preparar el tablero." };
       if (editing.value) return { kind: "edit", icon: "🛠️", text: "Ubica tus 5 barcos en tu tablero y pulsa «Listo»." };
+      const pushing = [...inFlight].find((k) => k.startsWith("e"));
+      if (robotView.value && pushing) {
+        const [r, c] = pushing.slice(1).split("-").map(Number);
+        return { kind: "wait", icon: "🤖", text: `El robot va a ${ROWS[r]}${c + 1} a empujar el bloque…` };
+      }
       if (state.pendingShot && inFlight.has(`o${state.pendingShot.row}-${state.pendingShot.column}`))
         return { kind: "wait", icon: "🔭", text: "Alexa está apuntando…" };
       if (state.pendingShot) return { kind: "alert", icon: "🎯", text: `Alexa disparó a ${cellName(state.pendingShot)}. ${state.autoAnswer ? "Respondiendo…" : "Respóndele: A agua, T tocado, H hundido."}` };
@@ -283,6 +324,16 @@ createApp({
     });
 
     const count = (board, test) => board.flat().filter(test).length;
+
+    // Pieces left in the tray: 17 of each (one per ship cell). A piece is spent once its hit is shown
+    const TOTAL_SHIP_CELLS = LENGTHS.reduce((a, b) => a + b, 0);
+    const shownHits = (board, prefix) => {
+      let hits = 0;
+      board.forEach((row, r) => row.forEach((v, c) => { if ((v === 1 || v === 3) && !inFlight.has(`${prefix}${r}-${c}`)) hits++; }));
+      return hits;
+    };
+    const trayRed = computed(() => Math.max(0, TOTAL_SHIP_CELLS - shownHits(state.alexaBoard, "e")));
+    const trayFlames = computed(() => Math.max(0, TOTAL_SHIP_CELLS - shownHits(state.playerShots, "o")));
     const stats = computed(() => {
       const myShots = count(state.alexaBoard, (v) => v !== 0);
       const myHits = count(state.alexaBoard, (v) => v === 1 || v === 3);
@@ -380,7 +431,7 @@ createApp({
         draft.value = [...draft.value.filter((d) => d.ship !== p.ship), p];
         const next = [0, 1, 2, 3, 4].find((i) => !draftHas(i));
         selected.value = next === undefined ? null : next;
-        Sfx.click();
+        if (robotView.value) Sfx.brick(); else Sfx.click();
         return;
       }
       // Clic sobre un barco ya ubicado: lo levanta para moverlo
@@ -412,8 +463,17 @@ createApp({
       return !editing.value && cellsOf(s).every(([r, c]) => state.playerShots[r][c] !== 0);
     }
 
+    // Which of your ships sits on each cell: in the robot view those cells become colored Duplo blocks
+    const shipOnCell = computed(() => {
+      const map = {};
+      for (const s of shownShips.value) for (const [r, c] of cellsOf(s)) map[`${r}-${c}`] = s;
+      return map;
+    });
+
     function ownCellClass(r, c) {
       const classes = [];
+      const ship = shipOnCell.value[`${r}-${c}`];
+      if (robotView.value && ship) classes.push("duplo", "ship-" + ship.ship, { "duplo-sunk": isSunk(ship) });
       if (preview.value && preview.value.cells.some(([pr, pc]) => pr === r && pc === c))
         classes.push(preview.value.ok ? "preview-ok" : "preview-bad");
       if (editing.value) classes.push("editable");
@@ -504,8 +564,27 @@ createApp({
 
     // ---------- robot virtual ----------
 
-    const robot = reactive({ row: HOME, column: HOME, rowMs: 0, columnMs: 0, pushing: false, led: "GREEN", command: "", screen: "EV3" });
+    const robot = reactive({
+      row: HOME, column: HOME, rowMs: 0, columnMs: 0, pushing: false, led: "GREEN", command: "", screen: "EV3",
+      moving: false, axis: null, touchRow: true, touchColumn: true,
+    });
     const robotLog = ref([]);
+    // Shots waiting for the robot to push their block (resolved by runCommand, or by a timeout
+    // when no robot events arrive, for example with the robot disconnected)
+    const pushWaiters = new Map();
+    let lastPush = { key: null, at: 0 };
+    function waitForPush(key, timeoutMs) {
+      if (lastPush.key === key && Date.now() - lastPush.at < 30000) return Promise.resolve();
+      return new Promise((resolve) => {
+        const timer = setTimeout(() => { pushWaiters.delete(key); resolve(); }, timeoutMs);
+        pushWaiters.set(key, () => { clearTimeout(timer); pushWaiters.delete(key); resolve(); });
+      });
+    }
+    function notifyPush(row, column) {
+      const key = `e${row}-${column}`;
+      lastPush = { key, at: Date.now() };
+      pushWaiters.get(key)?.();
+    }
     const queue = [];
     let running = false;
     let lastEvent = 0;
@@ -513,20 +592,56 @@ createApp({
     async function move(axis, target, ms) {
       if (ms <= 0) return;
       const stop = Sfx.motor();
-      if (axis === "row") { robot.rowMs = ms; robot.row = target; } else { robot.columnMs = ms; robot.column = target; }
+      robot.moving = true; robot.axis = axis;
+      if (axis === "row") { robot.touchRow = false; robot.rowMs = ms; robot.row = target; }
+      else { robot.touchColumn = false; robot.columnMs = ms; robot.column = target; }
       await sleep(ms);
+      robot.moving = false; robot.axis = null;
       stop();
     }
 
+    // A port lights up while its motor turns or its touch sensor is pressed
+    function portOn(id) {
+      switch (id) {
+        case "A": case "D": return robot.axis === "row";
+        case "B": return robot.pushing;
+        case "C": return robot.axis === "column";
+        case "1": return robot.touchColumn;
+        case "4": return robot.touchRow;
+        default: return false;
+      }
+    }
+
+    // Time for a motor to turn some degrees at a speed, divided by the simulator speed (x1 real, x4)
+    const turnMs = (degrees, degreesPerSecond) => (degrees / degreesPerSecond) * 1000 / speed.value;
+    // A small jolt of the LEGO frame (the push, or the carriage hitting a touch sensor)
+    function shake() {
+      const board = enemyBoard.value;
+      if (!robotView.value || !board || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      board.animate([
+        { transform: "translate(0, 0)" }, { transform: "translate(-1.5px, 1px)" }, { transform: "translate(1.5px, -1px)" },
+        { transform: "translate(-1px, 0)" }, { transform: "translate(0, 0)" },
+      ], { duration: 220, easing: "linear" });
+    }
+
+    async function pressTouch(axis) {
+      // The carriage hits the touch sensor: click, a small jolt of the frame and 0.5 s of rest
+      if (axis === "row") robot.touchRow = true; else robot.touchColumn = true;
+      Sfx.click();
+      shake();
+      await sleep(500 / speed.value);
+    }
+
     async function goHome() {
-      // Igual que motion.go_home: primero el eje horizontal, después el vertical
-      const s = speed.value;
-      await move("column", HOME, ((HOME - robot.column) * 500) / s);
-      Sfx.click();
-      await sleep(500 / s);
-      await move("row", HOME, ((HOME - robot.row) * 500) / s);
-      Sfx.click();
-      await sleep(500 / s);
+      // Same as motion.go_home: first the pusher to column 9 (sensor 1), then the carriage to row I (sensor 4)
+      if (robot.column !== HOME || !robot.touchColumn) {
+        await move("column", HOME, turnMs((HOME - robot.column) * MOTION.columnDegrees, MOTION.homeSpeed));
+        await pressTouch("column");
+      }
+      if (robot.row !== HOME || !robot.touchRow) {
+        await move("row", HOME, turnMs((HOME - robot.row) * MOTION.rowDegrees, MOTION.homeSpeed));
+        await pressTouch("row");
+      }
     }
 
     async function runCommand(cmd) {
@@ -541,12 +656,19 @@ createApp({
           if (cmd.attackResult === 5) break; // casilla ya atacada: el robot no se mueve
           robot.screen = ROWS[+cmd.row] + (+cmd.column + 1);
           robot.led = "AMBER";
-          // Igual que motion.move_to: 700 ms por casilla (400 °/s) y 1 s de pausa por eje
-          await move("row", +cmd.row, ((HOME - +cmd.row) * 700) / s); await sleep(1000 / s);
-          await move("column", +cmd.column, ((HOME - +cmd.column) * 700) / s); await sleep(1000 / s);
-          robot.pushing = true; Sfx.click(); await sleep(1000 / s); robot.pushing = false;
+          // Same as motion.move_to: rows at 140° and columns at 280° per cell (400°/s), 1 s rest after each axis
+          const rows = HOME - +cmd.row, columns = HOME - +cmd.column;
+          if (rows > 0) { await move("row", +cmd.row, turnMs(rows * MOTION.rowDegrees, MOTION.speed)); await sleep(1000 / s); }
+          if (columns > 0) { await move("column", +cmd.column, turnMs(columns * MOTION.columnDegrees, MOTION.speed)); await sleep(1000 / s); }
+          // Same as motion.push_brick: the rack goes out 350° and comes back 350°
+          const pushMs = turnMs(MOTION.pushDegrees, MOTION.speed);
+          robot.pushing = true; Sfx.click();
+          const stopPusher = Sfx.motor();
+          await sleep(pushMs);
+          shake(); notifyPush(+cmd.row, +cmd.column);
+          await sleep(pushMs);
+          stopPusher(); robot.pushing = false;
           robot.led = [1, 2, 4].includes(cmd.attackResult) ? "RED" : "GREEN";
-          await sleep(600 / s);
           await goHome();
           robot.led = "GREEN";
           break;
@@ -558,6 +680,7 @@ createApp({
         case "finish_game":
           robot.screen = "FIN";
           for (const color of ["RED", "GREEN", "AMBER", "GREEN"]) { robot.led = color; Sfx.beep(660, 0.12); await sleep(300); }
+          await goHome(); // same as robot.finish_game
           break;
       }
       robot.command = "";
@@ -571,13 +694,16 @@ createApp({
       running = false;
     }
 
+    let firstPoll = true;
     async function pollRobot() {
       try {
         for (const e of await api("GET", "/robot/eventos?desde=" + lastEvent)) {
           lastEvent = e.id;
           robotLog.value.push(`[${e.source}] ${e.json}`);
-          queue.push(JSON.parse(e.json));
+          // Commands from before a page reload go to the log only: the robot is already back home
+          if (!firstPoll) queue.push(JSON.parse(e.json));
         }
+        firstPoll = false;
         robotLoop();
       } catch (e) { /* servidor reiniciando */ }
       setTimeout(pollRobot, 400);
@@ -586,7 +712,8 @@ createApp({
     onMounted(async () => {
       window.addEventListener("keydown", onKey);
       document.addEventListener("click", (e) => { if (!e.target.closest(".sound-menu")) soundOpen.value = false; });
-      apply(await api("GET", "/estado"));
+      // On (re)load show the current boards as they are, without replaying old shots
+      Object.assign(state, await api("GET", "/estado"));
       if (state.gameMode !== null && state.sessionOpen) startClock(true);
       pollRobot();
       setInterval(async () => {
@@ -598,13 +725,13 @@ createApp({
     return {
       ROWS, NAMES, LENGTHS, levels: LEVELS, RESULT_TEXT, TOUR, state, busy, toast, reveal, speed, sunkShip, chat,
       enemyBoard, ownBoard, text, listening, canListen, sendText, listen, tab,
-      soundOpen, volume, muted, ambientOn, voice, voiceName, night, toggleFullscreen,
+      soundOpen, volume, muted, ambientOn, voice, voiceName, night, robotView, toggleFullscreen,
       phase, myTurn, needsLevel, openAndStart, rematch, setLevel, attack, answer, sayIntent, setMode, setAuto, toggleRobot,
       stats, elapsed, endScreen, myFleetStatus, alexaWrecks, history, keyBuffer,
       enemyCellClass, ownCellClass, cellName, whoClass, robotPillClass, alexaRing, alexaRingTitle,
       editing, draft, selected, horizontal, hover, startEdit, cancelEdit, draftHas, selectShip, rotate,
       clearDraft, randomDraft, clickOwnCell, saveFleet, shownShips, shipStyle, isSunk, ownMarks,
-      tour, startTour, nextTour, endTour, robot, robotLog,
+      tour, startTour, nextTour, endTour, robot, robotLog, EV3_PORTS, portOn, trayRed, trayFlames,
     };
   },
 }).mount("#app");

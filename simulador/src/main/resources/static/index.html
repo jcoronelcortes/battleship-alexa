@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Batalla Naval · Simulador</title>
   <link rel="icon" type="image/svg+xml" href="img/icono.svg">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=lego">
   <script src="/webjars/vue/3.5.44/dist/vue.global.prod.js"></script>
-  <script src="js/sound.js"></script>
-  <script src="js/effects.js"></script>
+  <script src="js/sound.js?v=lego"></script>
+  <script src="js/effects.js?v=lego"></script>
 </head>
 <body>
 
-<!-- Escena de fondo: cielo, sol o luna, estrellas, rosa de los vientos y olas -->
+<!-- Escena de fondo: cielo, sol o luna, estrellas, rosa de los vientos y olas.
+     En la vista robot se cambia por la habitación: pared clara y piso de madera, como en las fotos del robot. -->
 <div class="scene" aria-hidden="true">
   <div class="sky"></div>
   <div class="stars"></div>
@@ -27,6 +28,7 @@
   <div class="wave wave-back"></div>
   <div class="wave wave-mid"></div>
   <div class="wave wave-front"></div>
+  <div class="room"><div class="room-wall"></div><div class="room-floor"></div><div class="room-lamp"></div></div>
 </div>
 
 <div id="app" v-cloak>
@@ -57,6 +59,7 @@
           <small>Voz: {{ voiceName }}</small>
         </div>
       </div>
+      <button class="icon-btn" @click="robotView = !robotView" :title="robotView ? 'Vista clásica' : 'Vista robot (como el LEGO real)'">{{ robotView ? '🗂️' : '🧱' }}</button>
       <button class="icon-btn" @click="night = !night" :title="night ? 'Modo día' : 'Modo noche'">{{ night ? '☀️' : '🌙' }}</button>
       <button class="icon-btn" @click="toggleFullscreen" title="Pantalla completa">⛶</button>
       <button class="icon-btn" @click="startTour" title="Cómo se juega">?</button>
@@ -99,14 +102,55 @@
   </section>
 
   <main class="layout">
-    <!-- Tablero de Alexa -->
-    <section class="card">
+    <!-- Tablero de Alexa (en la vista robot va de pie, como la pared del robot) -->
+    <section class="card enemy-card">
       <h2>Flota de Alexa <small>{{ myTurn ? 'elige dónde disparar (o escribe C5)' : '' }}</small></h2>
-      <div class="board enemy" :class="{armed: myTurn}" ref="enemyBoard" data-tour="enemy">
+      <!-- Cartel de instrucciones al lado de la pared, como en el robot real (docs/cartel-instrucciones.md) -->
+      <aside v-if="robotView" class="poster" aria-label="Instrucciones del juego">
+        <div class="poster-paper">
+          <h3>Instrucciones</h3>
+          <section class="poster-sec">
+          <h4>Barcos</h4>
+          <ul class="poster-ships">
+            <li v-for="(name, i) in NAMES" :key="name">
+              <span class="swatch" :class="'ship-' + i"></span><span class="poster-name">{{ name }}</span><small>{{ LENGTHS[i] }}</small>
+            </li>
+          </ul>
+          </section>
+          <section class="poster-sec">
+          <h4>Dile a Alexa</h4>
+          <dl class="poster-says">
+            <dt>Abrir</dt><dd>«Alexa, abre batalla naval»</dd>
+            <dt>Empezar</dt><dd>«comenzar juego»</dd>
+            <dt>Dificultad</dt><dd>«modo de juego medio»</dd>
+            <dt>Atacar</dt><dd>«C cinco»</dd>
+            <dt>Responder</dt><dd>«al agua», «tocado», «hundiste mi submarino»</dd>
+            <dt>Rendirte</dt><dd>«tú ganas»</dd>
+            <dt>Ayuda</dt><dd>«ayuda»</dd>
+          </dl>
+          <p class="poster-note">Después de tu ataque, Alexa dispara: respóndele antes de volver a atacar.</p>
+          </section>
+        </div>
+      </aside>
+      <img class="sign" src="img/cartel.svg" alt="Battleship" draggable="false">
+      <div class="board enemy" :class="{armed: myTurn, rumble: robotView && robot.moving}" ref="enemyBoard" data-tour="enemy">
         <div class="corner" style="grid-row: 1; grid-column: 1"></div>
-        <div v-for="c in 9" :key="'ec' + c" class="label" :style="{gridRow: 1, gridColumn: c + 1}">{{ c }}</div>
+        <div class="frame" aria-hidden="true"></div>
+        <!-- Carro del robot detrás de la pared: la viga se mueve por filas y el motor que empuja, por columnas -->
+        <template v-if="robotView">
+          <div class="rail" aria-hidden="true"
+               :style="{'--r': robot.row, transitionDuration: robot.rowMs + 'ms'}">
+            <!-- Sensor táctil 1: lo presiona el empujador al llegar a la columna 9 -->
+            <span class="touch touch-column" :class="{pressed: robot.touchColumn}" title="Sensor táctil horizontal (puerto 1)"></span>
+          </div>
+          <!-- Sensor táctil 4: lo presiona el carro al bajar a la fila I -->
+          <span class="touch touch-row" :class="{pressed: robot.touchRow}" title="Sensor táctil vertical (puerto 4)" aria-hidden="true"></span>
+          <div class="pusher-head" aria-hidden="true" :class="{push: robot.pushing}"
+               :style="{'--r': robot.row, '--c': robot.column, transitionDuration: robot.rowMs + 'ms, ' + robot.columnMs + 'ms'}"></div>
+        </template>
+        <div v-for="c in 9" :key="'ec' + c" class="label top" :style="{gridRow: 1, gridColumn: c + 1}">{{ c }}</div>
         <template v-for="r in 9" :key="'er' + r">
-          <div class="label" :style="{gridRow: r + 1, gridColumn: 1}">{{ ROWS[r - 1] }}</div>
+          <div class="label side" :style="{gridRow: r + 1, gridColumn: 1}">{{ ROWS[r - 1] }}</div>
           <button v-for="c in 9" :key="'e' + r + c" class="cell"
                   :data-r="r - 1" :data-c="c - 1"
                   :class="enemyCellClass(r - 1, c - 1)"
@@ -124,17 +168,18 @@
       <label class="small-check"><input type="checkbox" v-model="reveal"> Mostrar los barcos de Alexa (trampa para pruebas)</label>
     </section>
 
-    <!-- Tablero del jugador -->
-    <section class="card">
+    <!-- Tablero del jugador (en la vista robot va acostado delante, en perspectiva) -->
+    <section class="card own-card">
       <h2>Tu flota
         <small v-if="editing">haz clic para ubicar · <kbd>R</kbd> o clic derecho para girar</small>
         <small v-else-if="state.fleetLocked">bloqueada: Alexa ya disparó</small>
       </h2>
-      <div class="board own" ref="ownBoard" @mouseleave="hover = null" @contextmenu.prevent="rotate" data-tour="own">
+      <div class="board own" :class="{editing}" ref="ownBoard" @mouseleave="hover = null" @contextmenu.prevent="rotate" data-tour="own">
         <div class="corner" style="grid-row: 1; grid-column: 1"></div>
-        <div v-for="c in 9" :key="'oc' + c" class="label" :style="{gridRow: 1, gridColumn: c + 1}">{{ c }}</div>
+        <div class="frame" aria-hidden="true"></div>
+        <div v-for="c in 9" :key="'oc' + c" class="label top" :style="{gridRow: 1, gridColumn: c + 1}">{{ c }}</div>
         <template v-for="r in 9" :key="'or' + r">
-          <div class="label" :style="{gridRow: r + 1, gridColumn: 1}">{{ ROWS[r - 1] }}</div>
+          <div class="label side" :style="{gridRow: r + 1, gridColumn: 1}">{{ ROWS[r - 1] }}</div>
           <button v-for="c in 9" :key="'o' + r + c" class="cell"
                   :data-r="r - 1" :data-c="c - 1"
                   :class="ownCellClass(r - 1, c - 1)"
@@ -151,6 +196,23 @@
         <div v-for="mark in ownMarks" :key="'m' + mark.row + mark.column" class="mark"
              :class="mark.kind" :style="{gridRow: mark.row + 2, gridColumn: mark.column + 2}"></div>
       </div>
+
+      <!-- Bandeja de piezas, como al lado del robot real: se gasta un bloque rojo por cada impacto
+           tuyo en la pared de Alexa y una llama por cada impacto de Alexa en tu tablero -->
+      <aside v-if="robotView" class="tray" aria-label="Bandeja de piezas">
+        <div class="tray-group" title="Bloques rojos: uno por cada impacto tuyo en la flota de Alexa">
+          <span class="tray-label">Bloques rojos <b>{{ trayRed }}</b></span>
+          <transition-group name="spend" tag="div" class="tray-grid bricks">
+            <span v-for="i in trayRed" :key="'r' + i" class="cell tray-brick"></span>
+          </transition-group>
+        </div>
+        <div class="tray-group" title="Llamas: una por cada impacto de Alexa en tu flota">
+          <span class="tray-label">Llamas <b>{{ trayFlames }}</b></span>
+          <transition-group name="spend" tag="div" class="tray-grid flames">
+            <span v-for="i in trayFlames" :key="'f' + i" class="tray-flame"></span>
+          </transition-group>
+        </div>
+      </aside>
 
       <div v-if="editing" class="shipyard">
         <button v-for="(name, i) in NAMES" :key="name" class="yard-ship"
@@ -169,6 +231,8 @@
       <button v-else-if="!state.fleetLocked" class="chip edit-btn" @click="startEdit" data-tour="edit">✎ Ubicar mis barcos</button>
     </section>
 
+    <!-- Columna lateral: Alexa y el robot (en la vista clásica no agrupa nada) -->
+    <div class="side">
     <!-- Alexa -->
     <section class="card alexa" data-tour="alexa">
       <div class="card-head">
@@ -225,9 +289,34 @@
                  :style="{left: robot.column * 25 + 2 + 'px', transitionDuration: robot.columnMs + 'ms'}"></div>
           </div>
         </div>
-        <div class="ev3">
-          <div class="ev3-screen">{{ robot.screen }}</div>
-          <div class="leds"><span class="led" :class="robot.led"></span><span class="led" :class="robot.led"></span></div>
+        <div class="ev3-wrap">
+          <!-- Ladrillo EV3 como el del robot: puertos de motores arriba (A–D), de sensores abajo (1–4),
+               pantalla, botones con la luz de estado y los cables conectados como en el armado real -->
+          <div class="ev3" :class="'led-' + robot.led">
+            <div class="ev3-ports top">
+              <div v-for="p in EV3_PORTS.out" :key="p.id" class="port" :class="{used: p.label, on: portOn(p.id)}" :title="p.title">
+                <small>{{ p.label }}</small><span class="cable"></span><b>{{ p.id }}</b>
+              </div>
+            </div>
+            <div class="ev3-face">
+              <div class="ev3-screen">
+                <div class="ev3-status"><span>EV3</span><span>WiFi ▮▮▮</span></div>
+                <div class="ev3-text">{{ robot.screen }}</div>
+              </div>
+              <div class="ev3-buttons">
+                <span class="b-back" title="Atrás"></span>
+                <div class="b-pad" title="Luz de estado: verde = listo, naranja = moviéndose, rojo = impacto">
+                  <span class="b-up"></span><span class="b-left"></span><span class="b-center"></span><span class="b-right"></span><span class="b-down"></span>
+                </div>
+              </div>
+              <div class="ev3-brand">EV3</div>
+            </div>
+            <div class="ev3-ports bottom">
+              <div v-for="p in EV3_PORTS.in" :key="p.id" class="port" :class="{used: p.label, on: portOn(p.id)}" :title="p.title">
+                <b>{{ p.id }}</b><span class="cable"></span><small>{{ p.label }}</small>
+              </div>
+            </div>
+          </div>
           <label class="small-check">Velocidad
             <select v-model.number="speed"><option :value="1">real</option><option :value="4">×4</option></select>
           </label>
@@ -238,6 +327,7 @@
         <pre class="robot-log">{{ robotLog.join('\n') }}</pre>
       </details>
     </section>
+    </div>
   </main>
 
   <!-- Pantalla final -->
@@ -276,6 +366,6 @@
   <div class="toast" v-if="toast" @click="toast = ''">{{ toast }}</div>
 </div>
 
-<script src="app.js"></script>
+<script src="app.js?v=lego"></script>
 </body>
 </html>

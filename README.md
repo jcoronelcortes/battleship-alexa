@@ -85,7 +85,7 @@ Cada jugador tiene 5 barcos, que suman 17 casillas. Los barcos pueden ir en hori
 | Destructor | 2 | Amarillo |
 | Submarino | 3 | Naranja |
 | Crucero | 3 | Verde |
-| Acorazado | 4 | Rojo oscuro |
+| Acorazado | 4 | Café |
 | Portaaviones | 5 | Gris (nuevo) |
 
 > La versión 2020 usaba 10 barcos más pequeños. Los colores sugeridos reutilizan los bloques de esa versión; solo el portaaviones necesita un color nuevo.
