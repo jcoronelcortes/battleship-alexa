@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jose.coronel.cl.battleship.game.board.BoardGame;
 import jose.coronel.cl.battleship.game.board.Game;
+import jose.coronel.cl.battleship.game.board.Ship;
 import jose.coronel.cl.battleship.game.board.Zone;
 import jose.coronel.cl.battleship.robot.RobotChannels;
 import jose.coronel.cl.battleship.session.GameSession;
@@ -41,10 +42,14 @@ public class GameSimulator {
     public record Shot(int row, int column) {
     }
 
+    /** One of Alexa's ships for the scoreboard. Its position is only sent once it is sunk (row -1 before). */
+    public record AlexaShip(int ship, String name, int length, boolean sunk, int row, int column, boolean horizontal) {
+    }
+
     /** Everything the page draws. Board cells: 0 not attacked, 1 hit, 2 water, 3 sunk ship. */
     public record State(Mode mode, String robot, boolean sessionOpen, boolean autoAnswer, Integer gameMode,
                         int[][] alexaBoard, boolean[][] alexaShips, int[][] playerShots, int[][] playerFleet,
-                        List<PlayerFleet.Placement> ships, boolean fleetLocked,
+                        List<PlayerFleet.Placement> ships, boolean fleetLocked, List<AlexaShip> alexaFleet,
                         Shot pendingShot, List<Line> conversation) {
     }
 
@@ -331,7 +336,19 @@ public class GameSimulator {
         }
         return new State(mode, mode == Mode.LOCAL ? "local" : iotRobot.status(), sessionOpen, autoAnswer,
                 game == null ? null : game.getGameMode(), alexaBoard, alexaShips, playerShots, fleet.cells(),
-                fleet.placements(), fleetLocked(), pendingShot(), List.copyOf(conversation));
+                fleet.placements(), fleetLocked(), alexaFleet(game), pendingShot(), List.copyOf(conversation));
+    }
+
+    private static List<AlexaShip> alexaFleet(Game game) {
+        List<AlexaShip> ships = new ArrayList<>();
+        for (int i = 0; i < PlayerFleet.NAMES.length; i++) {
+            Ship ship = game == null || game.getShips() == null ? null : game.shipByIdentifier(i);
+            boolean sunk = ship != null && ship.getLifePoints() <= 0;
+            ships.add(new AlexaShip(i, PlayerFleet.NAMES[i], PlayerFleet.LENGTHS[i], sunk,
+                    sunk ? ship.getRow() : -1, sunk ? ship.getColumn() : -1,
+                    !sunk || ship.getDirection() == Ship.HORIZONTAL));
+        }
+        return ships;
     }
 
     private Game currentGame() {

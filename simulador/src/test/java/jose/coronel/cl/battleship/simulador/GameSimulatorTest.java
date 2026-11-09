@@ -34,6 +34,8 @@ class GameSimulatorTest {
         GameSimulator.State afterAttack = simulator.say("C cinco", "AtaqueJugadorIntent", Map.of("Fila", "C", "Columna", "5"));
 
         assertTrue(afterAttack.alexaBoard()[2][4] != 0, "C5 is marked on Alexa's board");
+        assertTrue(afterAttack.alexaFleet().stream().allMatch(ship -> ship.sunk() || ship.row() == -1),
+                "afloat ships do not reveal their position");
         assertNotNull(afterAttack.pendingShot(), "Alexa shot back");
         assertEquals(2, afterAttack.gameMode());
 
@@ -87,6 +89,8 @@ class GameSimulatorTest {
         }
         long hits = java.util.Arrays.stream(state.alexaBoard()).flatMapToInt(java.util.Arrays::stream).filter(v -> v == 1).count();
         String last = state.conversation().get(state.conversation().size() - 1).text();
+        assertTrue(state.alexaFleet().stream().allMatch(GameSimulator.AlexaShip::sunk), "all Alexa ships sunk");
+        assertTrue(state.alexaFleet().stream().allMatch(ship -> ship.row() >= 0), "positions revealed once sunk");
         // Alexa cannot sink all 17 cells in her first 17 shots, so the player always wins here
         assertTrue(last.contains("Tu ganas"), last);
         assertEquals(17, hits, "all 17 hits shown, including the winning one");

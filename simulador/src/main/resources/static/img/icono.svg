@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Ícono de la pestaña: versión simple del logotipo -->
+  <circle cx="32" cy="32" r="30" fill="#f2b62c"/>
+  <circle cx="32" cy="32" r="26" fill="#0f4f99"/>
+  <rect x="24" y="16" width="16" height="16" rx="3" fill="#e2433a"/>
+  <circle cx="32" cy="24" r="11" fill="none" stroke="#ffe08a" stroke-width="3"/>
+  <g fill="none" stroke="#ffe08a" stroke-width="4" stroke-linecap="round">
+    <path d="M32 36 V52"/><path d="M22 46 Q32 58 42 46"/><path d="M26 40 H38"/>
+  </g>
+</svg>

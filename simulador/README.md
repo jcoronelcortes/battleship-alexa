@@ -1,3 +1,5 @@
+<p align="center"><img src="src/main/resources/static/img/logo.svg" alt="Batalla Naval" width="200"></p>
+
 # Simulador web de Batalla Naval
 
 Página web para jugar contra la skill de Alexa **sin el Echo** y, si quieres, **sin el robot**: el simulador hace de robot virtual y muestra en pantalla cada movimiento que haría el EV3. En el modo *Alexa completa* también prueba si Alexa entiende tus frases.
@@ -45,7 +47,7 @@ Requisitos: la ASK CLI configurada (`ask configure`) y la skill habilitada para 
 1. **Ubica tus barcos** (ver abajo), o deja los que el simulador ubicó al azar.
 2. Pulsa **▶ Nueva partida**: el simulador abre la skill ("Alexa, abre batalla naval") y dice "comenzar juego". Luego elige el nivel en la barra superior: **básico**, **medio** o **avanzado**.
 3. **Ataca** haciendo clic en una casilla de la *Flota de Alexa*.
-4. Alexa contraataca y su disparo parpadea en *Tu flota*. Respóndele con **💧 Al agua**, **💥 Tocado** o **🔥 Hundido** (eligiendo qué barco hundió). Si activas *Respuesta automática*, el simulador responde solo según dónde están tus barcos.
+4. Alexa contraataca y su disparo parpadea en *Tu flota*. Respóndele con **💧 Al agua**, **💥 Tocado** o **🔥 Hundido** (eligiendo qué barco hundió). Con el interruptor **Auto** (arriba a la derecha) activado, el simulador responde solo según dónde están tus barcos.
 
 La barra superior siempre indica de quién es el turno y qué hacer.
 
@@ -66,8 +68,49 @@ La barra superior siempre indica de quién es el turno y qué hacer.
 ### Otras opciones
 
 - **Mostrar los barcos de Alexa:** trampa para pruebas; los marca con un borde amarillo.
-- **Voz:** lee las respuestas de Alexa con la voz del navegador.
 - **Velocidad del robot:** *real* usa los mismos tiempos que el EV3 (700 ms por casilla); *×4* va 4 veces más rápido.
+
+## Gráficos, sonido y atajos
+
+![Partida en curso](../docs/img/simulador.jpg)
+
+### Gráficos
+- **Logotipo propio** (`static/img/logo.svg`) y su ícono en la pestaña del navegador.
+- **Fondo animado:** cielo, sol, olas en capas y una rosa de los vientos. Con 🌙 cambia a **modo noche**, con luna y estrellas.
+- **Cada disparo:** un proyectil vuela en arco hasta la casilla. Si es **agua**, salta una columna de agua con gotas; si es **impacto**, hay una explosión con chispas y **humo que queda** sobre la casilla. Cuando un barco se **hunde**, se inclina, se oscurece y suben burbujas.
+- **Radar:** mientras eliges dónde disparar, un barrido verde recorre la flota de Alexa.
+- **Restos:** los barcos de Alexa que hundes aparecen en su tablero.
+- **Marcador:** las siluetas de ambas flotas (se tachan al hundirse), los disparos, la precisión de cada uno y el tiempo de la partida.
+- **Anillo de Alexa:** gira cuando Alexa piensa, pulsa cuando escucha (modo *Alexa completa*) y brilla cuando habla.
+- **Pantalla final:** victoria con confeti y fanfarria, o derrota con tambores, más las estadísticas y el botón **⚔️ Revancha**.
+
+| Modo noche | Victoria |
+|---|---|
+| ![Modo noche](../docs/img/simulador-noche.jpg) | ![Victoria](../docs/img/simulador-victoria.jpg) |
+
+### Sonido 🔊
+Todos los sonidos se generan en el navegador (Web Audio), sin archivos de audio:
+- cañonazo y silbido del proyectil, salpicadura, explosión y sirena cuando hunden un barco;
+- fanfarria de victoria y tambores de derrota;
+- zumbido de los motores del robot virtual y el "clic" del sensor al volver a la posición inicial;
+- **mar de fondo** opcional (olas y gaviotas).
+
+En el menú 🔊 se ajustan el **volumen**, **silenciar todo**, el **mar de fondo** y la **voz de Alexa**. La voz se elige sola entre las voces en español del sistema (prefiere es-US y es-MX) y lee cada respuesta de Alexa. Las preferencias se guardan en el navegador.
+
+### Atajos de teclado
+
+| Tecla | Acción |
+|---|---|
+| Letra de la fila + número (por ejemplo <kbd>C</kbd> <kbd>5</kbd>) | Disparar a esa casilla |
+| <kbd>A</kbd> / <kbd>T</kbd> / <kbd>H</kbd> | Responder a Alexa: agua, tocado o hundido (con *Auto* desactivado) |
+| <kbd>R</kbd> | Girar el barco mientras lo ubicas |
+| <kbd>?</kbd> | Ver el tutorial |
+| <kbd>Esc</kbd> | Cancelar la casilla escrita o cerrar ventanas |
+
+### Más opciones
+- **Tutorial:** se muestra solo la primera vez (6 pasos). Para verlo de nuevo, pulsa **?**.
+- **Historial:** la pestaña *Historial* lista cada disparo con su resultado, la hora y, en el modo *Alexa completa*, lo que entendió Alexa.
+- **⛶ Pantalla completa** y diseño adaptado a tablet.
 
 ## Colores y efectos
 
@@ -96,7 +139,7 @@ flowchart LR
 - `LocalSkillGateway` ejecuta la skill dentro del simulador; `LambdaSkillGateway` invoca la Lambda con tus credenciales de AWS; `AlexaSimulatorGateway` envía frases al simulador de Alexa con la ASK CLI y lee lo que entendió.
 - `IotRobot` es el robot virtual en AWS IoT.
 - `PlayerFleet` guarda tu flota y valida los barcos que ubicas a mano: que no se salgan del tablero, que no se superpongan y que estén los 5.
-- La página (`src/main/resources/static`) está hecha con **Vue 3**, incluido como WebJar en el `pom.xml`, así que funciona sin internet y sin herramientas de build. Consulta los comandos del robot cada 400 ms y los anima en el mismo orden que `motion.py`: fila, columna, empuje y vuelta a la posición inicial.
+- La página (`src/main/resources/static`) está hecha con **Vue 3**; los sonidos están en `js/sound.js` y los efectos visuales en `js/effects.js` (Web Animations API), ambos sin librerías externas, incluido como WebJar en el `pom.xml`, así que funciona sin internet y sin herramientas de build. Consulta los comandos del robot cada 400 ms y los anima en el mismo orden que `motion.py`: fila, columna, empuje y vuelta a la posición inicial.
 
 En los modos *Skill local* y *Lambda en AWS* las instrucciones se envían directamente como *intents*; el reconocimiento de lenguaje solo se prueba en el modo *Alexa completa*.
 
