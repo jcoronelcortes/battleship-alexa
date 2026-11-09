@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Plays phrases against the real skill using the Alexa simulator (ask smapi simulate-skill).
+"""Juega frases contra la skill real usando el simulador de Alexa (ask smapi simulate-skill).
 
-Usage:
+Muestra, para cada frase, qué intent entendió Alexa y qué respondió. No necesita el Echo ni el robot.
+
+Uso (desde la carpeta del proyecto):
   python3 deploy/simulate.py es-US "abre batalla naval" "comenzar juego" "modo de juego avanzado" "C cinco"
 """
 import json
@@ -30,7 +32,7 @@ def say(locale, text, new_session):
         result = ask("get-skill-simulation", "--skill-id", SKILL_ID, "--simulation-id", sim_id)
         if result.get("status") != "IN_PROGRESS":
             return result
-    raise SystemExit("simulation timed out")
+    raise SystemExit("El simulador de Alexa no respondió a tiempo")
 
 
 def main():

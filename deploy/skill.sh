@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Creates or updates the Alexa skill with the ASK CLI and connects it to the Lambda.
-# Needs: `ask configure` done once, and deploy/deploy.sh run once (so the Lambda alias exists).
+# Crea o actualiza la skill de Alexa con la ASK CLI y la conecta a la Lambda.
+# Requisitos: haber ejecutado `ask configure` y ./deploy/deploy.sh una vez (para que exista la Lambda).
 #
-# Usage (from the battleship-alexa-smart-mode folder):
+# Uso (desde la carpeta del proyecto):
 #   ./deploy/skill.sh
 set -euo pipefail
 
@@ -11,9 +11,9 @@ NAME="battleship-alexa"
 PKG="deploy/skill-package"
 
 ALIAS_ARN=$(aws --region "$REGION" lambda get-alias --function-name "$NAME" --name live --query AliasArn --output text)
-echo "Lambda endpoint: ${ALIAS_ARN}"
+echo "Endpoint de la Lambda: ${ALIAS_ARN}"
 
-# ---------- Build the skill package from alexa-skill/*.json ----------
+# ---------- Arma el paquete de la skill desde alexa-skill/*.json ----------
 rm -rf "$PKG/interactionModels"
 mkdir -p "$PKG/interactionModels/custom"
 for locale in es-US es-MX es-ES; do
@@ -68,7 +68,7 @@ cat > deploy/ask-resources.json <<EOF
 }
 EOF
 
-# Reuse an existing skill (e.g. the 2020 one) instead of creating a new one
+# Reutiliza una skill existente (la de 2020) en vez de crear una nueva
 EXISTING_SKILL_ID="${EXISTING_SKILL_ID:-amzn1.ask.skill.fe055462-2886-4526-9e85-44dd8cb8c5d4}"
 if [ ! -f deploy/.ask/ask-states.json ] && [ -n "$EXISTING_SKILL_ID" ]; then
   mkdir -p deploy/.ask
@@ -76,17 +76,17 @@ if [ ! -f deploy/.ask/ask-states.json ] && [ -n "$EXISTING_SKILL_ID" ]; then
     > deploy/.ask/ask-states.json
 fi
 
-# ---------- Deploy with the ASK CLI (skill metadata only; the Lambda is managed by deploy.sh) ----------
+# ---------- Despliega con la ASK CLI (solo la skill; la Lambda la maneja deploy.sh) ----------
 (cd deploy && ask deploy --target skill-metadata)
 
 SKILL_ID=$(python3 -c "import json;print(json.load(open('deploy/.ask/ask-states.json'))['profiles']['default']['skillId'])")
 echo "Skill ID: ${SKILL_ID}"
 
-# Enable the skill for testing on your account (Echo + simulator)
+# Habilita la skill para pruebas en tu cuenta (Echo y simulador)
 ask smapi set-skill-enablement --skill-id "$SKILL_ID" --stage development >/dev/null 2>&1 || true
 
-# Lock the Lambda to this skill
+# La Lambda solo responde a esta skill
 SKILL_ID="$SKILL_ID" ./deploy/deploy.sh
 
 echo
-echo "Skill ready. Try: ask dialog --skill-id ${SKILL_ID} --locale es-US"
+echo "Skill lista. Prueba: python3 deploy/simulate.py es-US \"abre batalla naval\" \"comenzar juego\""
