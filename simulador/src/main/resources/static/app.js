@@ -29,6 +29,7 @@ const EV3_PORTS = {
 const MOTION = {
   rowDegrees: 140, columnDegrees: 280, pushDegrees: 350, speed: 400,
   homeSpeed: 0.40 * 1050, // HOME_SPEED_PERCENT of the large motor's top speed
+  resultWaitMs: 2000,     // RESULT_WAIT_SECONDS: stays on the cell showing the result before going home
 };
 const FLIGHT_MS = 750;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -669,6 +670,8 @@ createApp({
           await sleep(pushMs);
           stopPusher(); robot.pushing = false;
           robot.led = [1, 2, 4].includes(cmd.attackResult) ? "RED" : "GREEN";
+          // Same as robot.player_attack: wait on the cell for the result, then right and down
+          await sleep(MOTION.resultWaitMs / s);
           await goHome();
           robot.led = "GREEN";
           break;

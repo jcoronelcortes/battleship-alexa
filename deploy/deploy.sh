@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Despliega en AWS el backend de Batalla Naval:
 #   - Rol IAM de la Lambda (logs y permiso para publicar en el tópico MQTT del robot)
-#   - Función Lambda (Java 21, SnapStart) con el alias "live": su ARN es el endpoint de la skill
+#   - Función Lambda (Java 25, SnapStart) con el alias "live": su ARN es el endpoint de la skill
 #   - Thing de AWS IoT, política y certificados del robot EV3 (se guardan en deploy/ev3-certs/)
 #
 # Uso (desde la carpeta del proyecto):
 #   mvn clean package
 #   ./deploy/deploy.sh                                  # primera vez, antes de crear la skill
 #   SKILL_ID=amzn1.ask.skill.xxxx ./deploy/deploy.sh    # con la skill creada: la Lambda solo le responde a ella
+#                                                       # (si existe deploy/.ask/ask-states.json, el ID se lee de ahí)
 #
 # Se puede ejecutar varias veces: actualiza lo que ya existe.
 set -euo pipefail
@@ -21,6 +22,14 @@ JAR="target/alexa-batlla-naval-2.0.0-lambda.jar"
 HANDLER="jose.coronel.cl.battleship.BatallaNavalAlexaSkill::handleRequest"
 CERTS="deploy/ev3-certs"
 SKILL_ID="${SKILL_ID:-}"
+ASK_STATES="deploy/.ask/ask-states.json"
+
+# Si la skill ya existe, se usa su ID guardado por skill.sh. Así, al volver a desplegar,
+# la Lambda sigue respondiendo solo a nuestra skill.
+if [ -z "$SKILL_ID" ] && [ -f "$ASK_STATES" ]; then
+  SKILL_ID=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['profiles']['default'].get('skillId',''))" "$ASK_STATES" 2>/dev/null || true)
+  [ -n "$SKILL_ID" ] && echo "Usando el Skill ID de ${ASK_STATES}"
+fi
 
 aws_() { aws --region "$REGION" "$@"; }
 
@@ -55,12 +64,13 @@ if aws_ lambda get-function --function-name "$NAME" >/dev/null 2>&1; then
   echo "Actualizando la Lambda ${NAME}"
   aws_ lambda update-function-code --function-name "$NAME" --zip-file "fileb://${JAR}" >/dev/null
   aws_ lambda wait function-updated-v2 --function-name "$NAME"
-  aws_ lambda update-function-configuration --function-name "$NAME" --environment "$ENV" >/dev/null
+  aws_ lambda update-function-configuration --function-name "$NAME" \
+    --runtime java25 --environment "$ENV" >/dev/null
   aws_ lambda wait function-updated-v2 --function-name "$NAME"
 else
   echo "Creando la Lambda ${NAME}"
   aws_ lambda create-function --function-name "$NAME" \
-    --runtime java21 --architectures arm64 --handler "$HANDLER" \
+    --runtime java25 --architectures arm64 --handler "$HANDLER" \
     --role "$ROLE_ARN" --zip-file "fileb://${JAR}" \
     --memory-size 1024 --timeout 10 \
     --snap-start ApplyOn=PublishedVersions \

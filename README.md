@@ -191,7 +191,10 @@ La **posición inicial es la casilla I9** (abajo a la derecha). Desde ahí, cada
 | Vertical (filas) | `(8 − fila) × 140°` | C = fila 2 → 6 × 140 = **840°** |
 | Horizontal (columnas) | `(8 − columna) × 280°` | 5 = columna 4 → 4 × 280 = **1120°** |
 | Empuje del bloque | −350° y luego +350° | El largo de la cremallera |
-| Vuelta a la posición inicial | Motores al 40% hasta presionar cada sensor táctil | |
+| Espera del resultado | 2 s en la casilla, con la luz roja (impacto) o verde (agua) | |
+| Vuelta a la posición inicial | Primero a la derecha y después hacia abajo, con los motores al 40% hasta presionar cada sensor táctil | |
+
+El orden de un ataque es siempre: **sube** a la fila, va a la **izquierda** hasta la columna, **empuja** el bloque, **espera** mientras Alexa anuncia el resultado y vuelve: primero a la **derecha** y después **baja** hasta I9.
 
 Estos valores están en [`config.py`](https://github.com/jcoronelcortes/battleship-ev3/blob/aws-iot/config.py) del robot. Después de armarlo, se ajustan con `calibrate.py`.
 
