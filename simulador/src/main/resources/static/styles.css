@@ -539,7 +539,8 @@ body.robot-view .own-card { margin-top: -1px; border-radius: 0 0 16px 16px; padd
 body.robot-view .own-card > * { order: 3; }
 body.robot-view .own-card > .board { order: 1; }
 body.robot-view .own-card > .board {
-  transform: rotateX(35deg); transform-origin: 50% 0;
+  --tilt: 50deg; /* inclinación del tablero acostado: más grados = más plano y más bajo */
+  transform: rotateX(var(--tilt)); transform-origin: 50% 0;
   box-shadow: inset 0 0 0 1px #b9c0c9, inset 0 2px 0 #ffffff, inset 0 -3px 0 #aeb5bf, 0 18px 24px #0006;
   transition: transform .6s cubic-bezier(.3,.7,.3,1);
 }
@@ -560,8 +561,13 @@ body.robot-view .own-card > .board {
   body.robot-view .side { grid-column: 3; grid-row: 1 / span 2; width: 100%; }
 }
 @media (min-width: 1430px) {
+  /* La casilla también depende del alto de la ventana, para que se vean los dos tableros
+     completos: cada píxel de casilla ocupa unos 21,75 px de alto en la vista, y el resto
+     (barra superior, cartel BATTLESHIP, bordes) unos 190 px, o 158 px con la barra plegada. */
+  body.robot-view { --fixed-height: 190px; }
+  body.robot-view:has(.topbar.collapsed) { --fixed-height: 158px; }
   body.robot-view .enemy-card, body.robot-view .own-card {
-    --cell: clamp(24px, calc(10.2vw - 122px), 40px);
+    --cell: clamp(24px, min(calc(10.2vw - 122px), calc((100vh - var(--fixed-height)) / 21.75)), 40px);
     display: grid; grid-template-columns: minmax(0, 1fr) 265px; column-gap: 12px; align-items: start;
   }
   body.robot-view .enemy-card { position: relative; }
