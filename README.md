@@ -33,7 +33,7 @@ Juega a la clásica **Batalla Naval** contra Alexa. Un robot **LEGO MINDSTORMS E
 | | 2020 | 2026 |
 |---|---|---|
 | Conexión Alexa → robot | Alexa Gadgets Toolkit (Bluetooth con el Echo), retirado por Amazon en 2021 | **AWS IoT Core (MQTT)** por WiFi, con un adaptador USB WiFi en el EV3 |
-| Backend | AWS Lambda con Java 8 | AWS Lambda con **Java 21** y SnapStart |
+| Backend | AWS Lambda con Java 8 | AWS Lambda con **Java 25** y SnapStart |
 | Flota | 10 barcos (4 de 1, 3 de 2, 2 de 3 y 1 de 4) | **5 barcos clásicos** (2, 3, 3, 4 y 5 casillas) |
 | Turnos | El jugador decía "tu turno" para que Alexa atacara | Alexa **contraataca sola** después de cada disparo tuyo |
 | Dificultad | Un nivel (disparos al azar) | **3 niveles**: básico, medio y avanzado |
@@ -278,7 +278,7 @@ Los videos muestran paso a paso cómo armar el robot (de 2019; la construcción 
 flowchart LR
     J(["Jugador"]) -- voz --> E["Echo<br/>(Alexa)"]
     E --> S["Skill «batalla naval»<br/>modelos es / en"]
-    S --> L["AWS Lambda<br/>Java 21 · SnapStart"]
+    S --> L["AWS Lambda<br/>Java 25 · SnapStart"]
     L -- "respuesta con voz (SSML)" --> E
     L -- "comando JSON<br/>tópico battleship/ev3" --> I["AWS IoT Core<br/>(MQTT)"]
     I -- "WiFi · TLS con certificado" --> R["EV3 con ev3dev<br/>Python · main.py"]
@@ -286,7 +286,7 @@ flowchart LR
 ```
 
 1. **Skill de Alexa.** Los modelos de voz [`alexa-skill/Battleship_es.json`](alexa-skill/Battleship_es.json) y [`Battleship_en.json`](alexa-skill/Battleship_en.json) convierten lo que dices en *intents* (por ejemplo `AtaqueJugadorIntent` con los slots `Fila` y `Columna`).
-2. **Lambda en Java 21.** Tiene la lógica del juego y la IA. La partida se guarda en la sesión de Alexa como JSON (clave `jsonGame`) entre un turno y el siguiente.
+2. **Lambda en Java 25.** Tiene la lógica del juego y la IA. La partida se guarda en la sesión de Alexa como JSON (clave `jsonGame`) entre un turno y el siguiente.
 3. **AWS IoT Core.** Cada jugada que mueve al robot se publica como JSON en el tópico `battleship/ev3`.
 4. **EV3.** El robot se suscribe a ese tópico con certificados propios y ejecuta los comandos **en orden**, uno a la vez.
 
@@ -387,7 +387,7 @@ npm install -g ask-cli
 ```
 
 También necesitas:
-- **Java 21 o superior.**
+- **Java 25 o superior.**
 - Una **cuenta de AWS**.
 - Una **cuenta de Amazon Developer**, la misma de tu Echo para probar la skill en él.
 
@@ -415,7 +415,7 @@ mvn clean package
 
 El script crea o actualiza:
 - El rol IAM de la Lambda, que solo puede publicar en el tópico del robot.
-- La Lambda `battleship-alexa` (Java 21, arm64, SnapStart), con el alias `live`.
+- La Lambda `battleship-alexa` (Java 25, arm64, SnapStart), con el alias `live`.
 - El *thing* de AWS IoT `battleship-ev3`, su política y sus **certificados**, que quedan en `deploy/ev3-certs/` y **no se suben a git**.
 
 ### 4. Crear la skill de Alexa

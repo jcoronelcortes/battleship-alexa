@@ -111,6 +111,7 @@ createApp({
     const voice = ref(store.get("batalla-naval-voz", false));
     const night = ref(store.get("batalla-naval-noche", false));
     const robotView = ref(store.get("batalla-naval-vista-robot", true));
+    const topbarCollapsed = ref(store.get("batalla-naval-barra-colapsada", false));
     const voiceName = ref(Voz.name);
     watch(volume, (v) => Sfx.setVolume(v));
     watch(muted, (m) => Sfx.setMuted(m));
@@ -118,6 +119,7 @@ createApp({
     watch(voice, (v) => { store.set("batalla-naval-voz", v); voiceName.value = Voz.name; if (!v) Voz.stop(); });
     watch(night, (n) => { store.set("batalla-naval-noche", n); document.body.classList.toggle("night", n); }, { immediate: true });
     watch(robotView, (on) => { store.set("batalla-naval-vista-robot", on); document.body.classList.toggle("robot-view", on); }, { immediate: true });
+    watch(topbarCollapsed, (collapsed) => store.set("batalla-naval-barra-colapsada", collapsed));
 
     function toggleFullscreen() {
       if (document.fullscreenElement) document.exitFullscreen();
@@ -194,7 +196,7 @@ createApp({
     const setAuto = (on) => act("POST", "/respuesta-automatica?activa=" + on);
     const toggleRobot = () => act("POST", state.robot === "desconectado" ? "/robot/conectar" : "/robot/desconectar");
 
-    // Modo "Alexa completa": frases libres, escritas o habladas
+    // Send typed phrases or browser speech transcripts through the active simulator mode.
     async function sendText() {
       const phrase = text.value.trim();
       if (!phrase) return;
@@ -728,7 +730,7 @@ createApp({
     return {
       ROWS, NAMES, LENGTHS, levels: LEVELS, RESULT_TEXT, TOUR, state, busy, toast, reveal, speed, sunkShip, chat,
       enemyBoard, ownBoard, text, listening, canListen, sendText, listen, tab,
-      soundOpen, volume, muted, ambientOn, voice, voiceName, night, robotView, toggleFullscreen,
+      soundOpen, volume, muted, ambientOn, voice, voiceName, night, robotView, topbarCollapsed, toggleFullscreen,
       phase, myTurn, needsLevel, openAndStart, rematch, setLevel, attack, answer, sayIntent, setMode, setAuto, toggleRobot,
       stats, elapsed, endScreen, myFleetStatus, alexaWrecks, history, keyBuffer,
       enemyCellClass, ownCellClass, cellName, whoClass, robotPillClass, alexaRing, alexaRingTitle,

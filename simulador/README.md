@@ -16,7 +16,7 @@ Desde la carpeta del proyecto (`battleship-alexa`):
 
 Luego abre <http://localhost:8080>.
 
-Requisitos: Java 21 y Maven. Para los modos con AWS necesitas además una sesión de AWS iniciada (`aws login`) y haber ejecutado `./deploy/deploy.sh`, que crea la Lambda y los certificados del robot.
+Requisitos: Java 25 y Maven. Para los modos con AWS necesitas además una sesión de AWS iniciada (`aws login`) y haber ejecutado `./deploy/deploy.sh`, que crea la Lambda y los certificados del robot.
 
 ## Modos de juego
 
@@ -36,8 +36,9 @@ En los modos con AWS, *conectar* une el simulador a AWS IoT con los **mismos cer
 
 En este modo el simulador no arma los intents: envía **lo que dices como texto** al simulador de Alexa (`ask smapi simulate-skill`), igual que si le hablaras a un Echo. Los clics y los botones también se convierten en frases ("C cinco", "tocado", "hundiste mi submarino").
 
-- Escribe cualquier frase en el cuadro *Escribe lo que le dirías a Alexa*. También puedes probar formas distintas de decir lo mismo, por ejemplo "disparo a la fila B columna tres".
-- 🎤 **Micrófono:** si tu navegador lo permite (Chrome o Edge), habla y la frase se envía sola.
+- El cuadro de texto y el micrófono también están disponibles en **Skill local** y **Lambda en AWS**. En esos modos se reconocen instrucciones del juego como "comenzar juego", "modo avanzado", "disparo a C cinco" o "hundiste mi submarino", y se envían como intents.
+- En **Alexa completa** puedes escribir o dictar frases libres y probar formas distintas de decir lo mismo, por ejemplo "disparo a la fila B columna tres". Alexa interpreta la frase real.
+- 🎤 **Micrófono:** si tu navegador lo permite (por ejemplo, Chrome o Edge), pulsa el botón y la frase reconocida se envía sola. Si no, el cuadro de texto sigue disponible.
 - Bajo cada mensaje tuyo aparece **lo que entendió Alexa** (🎧), con el intent y los slots, por ejemplo `entendió: AtaqueJugadorIntent · Fila=B Columna=3`. Si una frase cae en `AMAZON.FallbackIntent`, Alexa no la reconoció como una instrucción del juego: es una buena candidata para agregarla como frase de ejemplo en `alexa-skill/Battleship_es.json`.
 
 Requisitos: la ASK CLI configurada (`ask configure`) y la skill habilitada para pruebas (lo hace `deploy/skill.sh`). Cada turno tarda unos 5 segundos, porque pasa por los servidores de Alexa.
@@ -77,15 +78,16 @@ La barra superior siempre indica de quién es el turno y qué hacer.
 ### Gráficos
 - **Logotipo propio** (`static/img/logo.svg`) y su ícono en la pestaña del navegador.
 - **Aspecto del robot real de LEGO:** casillas como bloques Duplo de 2x2, impactos con la pieza de llamas, rótulos en tarjetas blancas escritas en azul, marco de vigas Technic y el cartel "BATTLESHIP".
-- **🧱 Vista robot** (por defecto): el tablero de Alexa va de pie, como la pared del robot, y el tuyo acostado delante en perspectiva. Al ubicar tus barcos el tablero se levanta para que sea fácil hacer clic. Con 🗂️ vuelves a la vista clásica, con los tableros lado a lado.
+- **🧱 Vista robot** (por defecto): el tablero de Alexa va de pie, como la pared del robot, y el tuyo acostado delante en perspectiva, incluso mientras ubicas tus barcos. Con 🗂️ vuelves a la vista clásica, con los tableros lado a lado.
 - **El carro del robot:** en la vista robot tu disparo no es un proyectil. La viga gris sube o baja hasta la fila, el motor que empuja avanza hasta la columna (con los mismos tiempos que el robot real y la velocidad ×4 o real del panel del robot), empuja el bloque azul, el bloque salta hacia adelante y aparece el resultado. Alexa contraataca recién cuando el robot termina.
 - **Movimiento con la física del robot real:** los tiempos salen de `battleship-ev3/config.py` (140° por fila y 280° por columna a 400°/s, empuje de 350° de ida y vuelta, 2 s de espera en la casilla con la luz del resultado, y vuelta a casa al 40 % de velocidad: primero a la derecha y después hacia abajo). La pared vibra mientras giran los motores, y los dos sensores táctiles (puertos 1 y 4) se sueltan cuando el carro se aleja y hacen clic al presionarse en I9.
 - **Ladrillo EV3 dibujado:** pantalla con la casilla que ataca el robot, botones con la luz de estado (verde = listo, naranja parpadeante = moviéndose, rojo = impacto, como en `robot.py`) y los cables a los puertos A, B, C, D, 1 y 4. Cada puerto se enciende mientras gira su motor o mientras su sensor táctil está presionado; pasa el mouse sobre un puerto para ver qué tiene conectado.
 - **Tus barcos como bloques Duplo:** en la vista robot cada casilla de tus barcos es un bloque Duplo del color del barco (amarillo, naranja, verde, café y gris), como en el tablero real. Cuando Alexa hunde uno, sus bloques se oscurecen.
-- **Cartel de instrucciones:** al lado de la pared de Alexa va un cartel con borde de ladrillos de colores, como el del robot real, con los barcos y las frases para decirle a Alexa. En pantallas angostas aparece arriba del cartel BATTLESHIP. La versión para imprimir está en [`docs/cartel-instrucciones.md`](../docs/cartel-instrucciones.md).
+- **Cartel de instrucciones:** en la vista robot aparece junto al tablero de Alexa, con borde de ladrillos de colores, como el del robot real. Las frases de respuesta se muestran una debajo de otra. La versión para imprimir está en [`docs/cartel-instrucciones.md`](../docs/cartel-instrucciones.md).
 - **La habitación y el plástico:** en la vista robot el mar se cambia por una pared clara y un piso de tablas de madera, como en las fotos del robot (en modo noche, con luz de lámpara). Al empujar un bloque suena el clic de plástico y el bloque que cae y rebota; al ubicar tus barcos suena el clic de un bloque que encaja.
 - **Bandeja de piezas:** al lado de tu tablero hay 17 bloques rojos y 17 llamas, una por cada casilla de barco. Cada impacto tuyo en la pared de Alexa gasta un bloque rojo y cada impacto de Alexa en tu tablero gasta una llama, justo cuando aparece el resultado. En pantallas angostas la bandeja va debajo del tablero.
 - **Fondo animado:** cielo, sol, olas en capas y una rosa de los vientos. Con 🌙 cambia a **modo noche**, con luna y estrellas.
+- **Interfaz ajustable:** pliega la barra del logo con el botón de flecha para ganar espacio; vuelve a mostrarla con el mismo botón. En pantallas anchas, el estado, las flotas y sus opciones quedan en tarjetas a la izquierda de los tableros; en ventanas bajas, las casillas se reducen para que se vean mejor.
 - **Cada disparo:** un proyectil vuela en arco hasta la casilla. Si es **agua**, salta una columna de agua con gotas; si es **impacto**, hay una explosión con chispas y **humo que queda** sobre la casilla. Cuando un barco se **hunde**, se inclina, se oscurece y suben burbujas.
 - **Radar:** mientras eliges dónde disparar, un barrido verde recorre la flota de Alexa.
 - **Restos:** los barcos de Alexa que hundes aparecen en su tablero.
@@ -150,7 +152,7 @@ flowchart LR
 - `PlayerFleet` guarda tu flota y valida los barcos que ubicas a mano: que no se salgan del tablero, que no se superpongan y que estén los 5.
 - La página (`src/main/resources/static`) está hecha con **Vue 3**; los sonidos están en `js/sound.js` y los efectos visuales en `js/effects.js` (Web Animations API), ambos sin librerías externas, incluido como WebJar en el `pom.xml`, así que funciona sin internet y sin herramientas de build. Consulta los comandos del robot cada 400 ms y los anima en el mismo orden que `motion.py`: fila, columna, empuje y vuelta a la posición inicial.
 
-En los modos *Skill local* y *Lambda en AWS* las instrucciones se envían directamente como *intents*; el reconocimiento de lenguaje solo se prueba en el modo *Alexa completa*.
+En *Skill local* y *Lambda en AWS*, el simulador reconoce localmente los comandos de texto y voz admitidos y los envía como *intents*. El reconocimiento real de frases libres de Alexa se prueba en el modo *Alexa completa*.
 
 ## Tests
 
@@ -158,7 +160,7 @@ En los modos *Skill local* y *Lambda en AWS* las instrucciones se envían direct
 mvn -f simulador/pom.xml test
 ```
 
-Son 17 tests. Juegan partidas contra la skill local (incluida una completa hasta que el jugador gana), verifican las respuestas automáticas y los comandos que recibe el robot, y comprueban la validación de la flota: barcos fuera del tablero, superpuestos, incompletos, y el bloqueo después del primer disparo de Alexa. El modo *Alexa completa* se prueba con respuestas reales capturadas del simulador de Alexa (`src/test/resources/alexa-sim`, sin tokens ni identificadores de cuenta), así que los tests no necesitan internet.
+Son 58 tests (40 de ellos prueban el reconocimiento de frases en modo local). Juegan partidas contra la skill local (incluida una completa hasta que el jugador gana), verifican comandos escritos, respuestas automáticas y los comandos que recibe el robot, y comprueban la validación de la flota: barcos fuera del tablero, superpuestos, incompletos, y el bloqueo después del primer disparo de Alexa. El modo *Alexa completa* se prueba con respuestas reales capturadas del simulador de Alexa (`src/test/resources/alexa-sim`, sin tokens ni identificadores de cuenta), así que los tests no necesitan internet.
 
 ## Próximas mejoras
 

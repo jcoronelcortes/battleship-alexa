@@ -192,12 +192,16 @@ public class GameSimulator {
         return state();
     }
 
-    /** Free text typed or spoken by the player (ALEXA mode). */
+    /** Free text typed or transcribed by the browser's speech recognition. */
     public synchronized State sayText(String text) {
-        if (mode != Mode.ALEXA) {
-            throw new IllegalStateException("Escribir frases libres solo funciona en el modo «Alexa completa».");
+        if (mode == Mode.ALEXA) {
+            return say(text, null, Map.of());
         }
-        return say(text, null, Map.of());
+        if (LocalPhraseParser.isLaunchPhrase(text)) {
+            return open();
+        }
+        LocalPhraseParser.Command command = LocalPhraseParser.parse(text);
+        return say(text, command.intent(), command.slots());
     }
 
     private void alexaTurn(String text, boolean newSession) {

@@ -14,7 +14,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -96,12 +95,6 @@ class AlexaModeTest {
         assertEquals("AtaqueJugadorIntent", result.intent());
         assertEquals(Map.of("Fila", "C", "Columna", "5"), result.slots());
         assertNull(result.skillResponse());
-    }
-
-    @Test
-    void freeTextOnlyInAlexaMode() {
-        simulator.setMode(GameSimulator.Mode.LOCAL);
-        assertThrows(IllegalStateException.class, () -> simulator.sayText("comenzar juego"));
     }
 
     private static String fixture(String name) {

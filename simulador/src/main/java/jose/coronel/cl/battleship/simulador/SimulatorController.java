@@ -46,7 +46,7 @@ public class SimulatorController {
         return simulator.say(say.spoken(), say.intent(), say.slots() == null ? Map.of() : say.slots());
     }
 
-    /** Free text for "Alexa completa": {"texto": "disparo a C cinco"}. */
+    /** Text typed or transcribed by the browser: {"texto": "disparo a C cinco"}. */
     @PostMapping("/frase")
     public GameSimulator.State sayText(@RequestBody Map<String, String> body) {
         return simulator.sayText(body.getOrDefault("texto", "").trim());

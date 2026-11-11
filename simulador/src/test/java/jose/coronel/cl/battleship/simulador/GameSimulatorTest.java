@@ -11,6 +11,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Plays against the local skill (no AWS) through the simulator, like the web page does. */
@@ -101,6 +102,26 @@ class GameSimulatorTest {
     void speechTextCleansSsml() {
         assertEquals("Ataque finalizado. Es mi turno.",
                 GameSimulator.speechText("Ataque finalizado. <break time=\"1s\"/>. Es mi turno<break time=\"1s\"/>."));
+    }
+
+    @Test
+    void writtenCommandsWorkInLocalMode() {
+        GameSimulator.State state = simulator.sayText("comenzar juego");
+        assertTrue(state.sessionOpen());
+
+        state = simulator.sayText("modo de juego avanzado");
+        assertEquals(2, state.gameMode());
+
+        state = simulator.sayText("disparo a C cinco");
+        assertTrue(state.alexaBoard()[2][4] != 0, "C5 is marked on Alexa's board");
+        assertNotNull(state.pendingShot(), "Alexa shot back");
+    }
+
+    @Test
+    void unsupportedWrittenCommandsExplainWhatIsRecognized() {
+        IllegalArgumentException error = assertThrows(
+                IllegalArgumentException.class, () -> simulator.sayText("una frase desconocida"));
+        assertTrue(error.getMessage().contains("disparo a C cinco"));
     }
 
     @Test
